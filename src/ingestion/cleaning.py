@@ -5,6 +5,18 @@ import pandas as pd
 
 from ingestion.crossref import PaperRecord
 
+
+def build_text_for_embedding(row) -> str:
+    """Ghép text_for_embedding 5 phần theo Data Contract; corruption.py dùng lại hàm này."""
+    return (
+        f"Title: {row['title']}\n"
+        f"Authors: {row['authors_joined']}\n"
+        f"Published: {row['published']}\n"
+        f"Categories: {row['categories_joined']}\n"
+        f"Summary: {row['summary']}"
+    )
+
+
 def build_clean_dataframe(records: list[PaperRecord], run_date: datetime) -> pd.DataFrame:
     """
     Làm sạch dữ liệu raw records thành pandas.DataFrame sẵn sàng để embedding.
@@ -41,13 +53,7 @@ def build_clean_dataframe(records: list[PaperRecord], run_date: datetime) -> pd.
     df['summary_chars'] = df['summary'].str.len()
 
     # 5. Tạo cột tổng hợp text_for_embedding
-    df['text_for_embedding'] = (
-        "Title: " + df['title'] + "\n" +
-        "Authors: " + df['authors_joined'] + "\n" +
-        "Published: " + df['published'].astype(str) + "\n" +
-        "Categories: " + df['categories_joined'] + "\n" +
-        "Summary: " + df['summary']
-    )
+    df['text_for_embedding'] = df.apply(build_text_for_embedding, axis=1)
 
     # 6. Khử trùng lặp và lọc dòng lỗi
     # Bỏ qua các dòng không có paper_id
