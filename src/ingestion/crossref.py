@@ -168,6 +168,15 @@ def parse_crossref_payload(payload: dict) -> list[PaperRecord]:
 
 def fetch_source_records(settings: Settings) -> list[PaperRecord]:
     """Fetch source records from Crossref API and persist raw snapshots."""
+    raw_path = settings.paths.raw_api_response
+    if not settings.refresh_source and raw_path.exists():
+        # Mặc định đọc snapshot đã commit để kết quả tái lập được; REFRESH_SOURCE=1 mới gọi API live.
+        with raw_path.open("r", encoding="utf-8") as f:
+            records = parse_crossref_payload(json.load(f))
+        if records:
+            _write_raw_records(records, settings.paths.raw_records_json)
+            return records
+
     params = {
         "query.title": settings.source_query,
         "filter": settings.source_filter,
@@ -175,7 +184,6 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
         "select": "DOI,title,abstract,author,subject,published,updated,created,URL,link",
     }
 
-    raw_path = settings.paths.raw_api_response
     raw_path.parent.mkdir(parents=True, exist_ok=True)
 
     last_error: Exception | None = None
@@ -213,7 +221,7 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
                 records = []
 
     if not records:
-        fallback_snapshot = Path("data/raw/crossref_records.json")
+        fallback_snapshot = settings.paths.raw_records_json
         if fallback_snapshot.exists():
             records = load_raw_records(fallback_snapshot)
 
@@ -222,7 +230,11 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
             "Failed to fetch Crossref data and no valid offline snapshot was available."
         ) from last_error
 
-    raw_records_path = settings.paths.raw_records_json
+    _write_raw_records(records, settings.paths.raw_records_json)
+    return records
+
+
+def _write_raw_records(records: list[PaperRecord], raw_records_path: Path) -> None:
     raw_records_path.parent.mkdir(parents=True, exist_ok=True)
     serialized = [
         {
@@ -242,8 +254,6 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
     ]
     with raw_records_path.open("w", encoding="utf-8") as f:
         json.dump(serialized, f, ensure_ascii=False, indent=2)
-
-    return records
 
 
 def load_raw_records(path: Path) -> list[PaperRecord]:
