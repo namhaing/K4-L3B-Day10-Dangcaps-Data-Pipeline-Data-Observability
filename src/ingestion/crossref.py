@@ -49,6 +49,21 @@ def _parse_date_parts(date_parts: list | None) -> str:
     return ""
 
 
+def _extract_date(date_obj: dict | None) -> str:
+    """Helper trích xuất ngày tháng hỗ trợ cả 'date-time' và 'date-parts'."""
+    if not date_obj:
+        return ""
+    
+    # 1. Ưu tiên lấy từ chuỗi ISO 'date-time' nếu có (VD: "2026-06-25T15:10:00Z" -> "2026-06-25")
+    date_time = date_obj.get("date-time")
+    if isinstance(date_time, str) and len(date_time) >= 10:
+        return date_time[:10]
+    
+    # 2. Fallback về hàm 'date-parts' cũ nếu không có 'date-time'
+    date_parts = date_obj.get("date-parts")
+    return _parse_date_parts(date_parts)
+
+
 def _extract_pdf_url(item: dict) -> str:
     links = item.get("link") or []
     for link in links:
@@ -113,11 +128,20 @@ def parse_crossref_payload(payload: dict) -> list[PaperRecord]:
         updated_raw = item.get("updated") or {}
         created_raw = item.get("created") or {}
 
-        published = _parse_date_parts(published_raw.get("date-parts"))
-        updated = _parse_date_parts(updated_raw.get("date-parts"))
+        # Sử dụng hàm _extract_date mới để đọc cả 'date-time' và 'date-parts'
+        published = _extract_date(published_raw)
+        updated = _extract_date(updated_raw)
+        
+        # Logic dự phòng (Fallback)
         if not updated:
-            updated = _parse_date_parts(created_raw.get("date-parts"))
-        if not published:
+            updated = _extract_date(created_raw)
+            
+        # Nếu vẫn không có updated (không có created), lấy published bù vào
+        if not updated and published:
+            updated = published
+            
+        # Nếu không có published, lấy updated bù vào
+        if not published and updated:
             published = updated
 
         abs_url = str(item.get("URL") or f"https://doi.org/{doi}").strip()
