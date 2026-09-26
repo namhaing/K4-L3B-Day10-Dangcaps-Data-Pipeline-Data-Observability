@@ -15,7 +15,8 @@ def build_text_for_embedding(row) -> str:
     """Format a cleaned row as five labeled lines for embedding.
 
     Accepts a dict or pandas Series with cleaned string values, including
-    empty strings when rebuilding text after data corruption.
+    empty strings when rebuilding text after data corruption. This public
+    helper is also used by ingestion.corruption to preserve the same format.
     """
     return (
         f"Title: {row['title']}\n"
