@@ -4,70 +4,56 @@
 
 | Thông tin | Nội dung |
 | --- | --- |
-| Họ và tên | Đồng Mạnh Hùng |
-| MSSV | 2A202602412 |
+| Họ và tên | Nguyễn Đình Anh |
+| MSSV | 2A202602573 |
 | Khóa/Lớp | K4 |
 | Tên nhóm | Dangcaps |
-| Vai trò chính | Data ingestion & cleaning owner |
-| Repository | https://github.com/namhaingK4-L3B-Day10-Dangcaps-Data-Pipeline-Data-Observability/tree/Hung23020370 |
+| Vai trò chính | P2 — Data Model & Evaluation-set Owner |
+| Repository | https://github.com/namhaing/K4-L3B-Day10-Dangcaps-Data-Pipeline-Data-Observability/tree/anh02573 |
 | Ngày hoàn thành | 2026-09-26 |
 
-## 2. Vai tr? v? ph?m vi c?ng vi?c
+## 2. Vai trò và phạm vi công việc
 
-T?i ph? tr?ch **P2 ? Data Model & Evaluation-set Owner**, g?m CP1 Cleaning v? CP2 Evaluation Test Set.
+Tôi phụ trách CP1 Cleaning và CP2 Evaluation Test Set.
 
-| Ph?n vi?c | File/h?m ph? tr?ch | Input | Output | Tr?ng th?i |
+| Phần việc | File/hàm | Input | Output | Trạng thái |
 | --- | --- | --- | --- | --- |
-| T?o text cho embedding | `src/ingestion/cleaning.py`: `build_text_for_embedding` | Row ?? clean | Chu?i ??ng 5 ph?n | ?? implement v? ki?m tra |
-| Cleaning v? data modeling | `src/ingestion/cleaning.py`: `build_clean_dataframe` | `list[PaperRecord]`, `run_date` UTC | DataFrame s?ch, 16 c?t | ?? ki?m tra 24 d?ng tr?n snapshot |
-| Evaluation set | `src/evaluation/testset.py`: `build_test_set` | Clean DataFrame, ???ng d?n output | 10 c?u h?i v? ground truth | ?? implement v? ki?m tra |
+| Dựng text embedding | `src/ingestion/cleaning.py`: `build_text_for_embedding` | Row đã clean | Chuỗi 5 phần | Đã implement và kiểm tra |
+| Cleaning | `src/ingestion/cleaning.py`: `build_clean_dataframe` | `list[PaperRecord]`, `run_date` UTC | DataFrame 16 cột | Đã kiểm tra 24 dòng trên snapshot |
+| Evaluation set | `src/evaluation/testset.py`: `build_test_set` | Clean DataFrame, output path | 10 câu hỏi và ground truth | Đã implement và kiểm tra |
 
-### C?ng vi?c ph?i h?p
+Tôi phối hợp kiểm tra contract P1 → P2, phát hiện ngày `updated` rỗng ở snapshot P1 và xác minh lại sau khi P1 sửa. Tôi giữ public helper dựng text để P4 tái sử dụng, đồng thời phân tích conflict khi tích hợp main và kiểm tra các điểm gọi của P1/P4.
 
-- ??i chi?u schema v? d? li?u P1 v?i contract ??u v?o c?a cleaning.
-- Ph?t hi?n snapshot P1 c? `updated` r?ng; ki?m tra l?i sau khi P1 s?a ng?y.
-- Gi? public helper d?ng text ?? P4 d?ng trong corruption.
-- Ph?n t?ch conflict khi t?ch h?p main, gi? c?c quy t?c cleaning c?a P2 v? x?c minh c?c ?i?m g?i c?a P1/P4.
+Fetch/parse Crossref thuộc P1; quality/freshness và reporting tự động thuộc P3; orchestration, corruption và repair thuộc P4. Tôi không nhận các implementation này là đóng góp của mình.
 
-Fetch/parse Crossref thu?c P1; quality/freshness v? reporting t? ??ng thu?c P3; orchestration, corruption v? repair thu?c P4. T?i kh?ng nh?n c?c implementation n?y l? ??ng g?p c?a m?nh.
+## 3. Kết quả theo vai trò
 
-## 3. K?t qu? theo vai tr?
-
-| N?i dung | K?t qu? ?? ki?m tra | B?ng ch?ng/c?ch ki?m tra |
+| Nội dung | Kết quả đã xác minh | Cách kiểm tra |
 | --- | --- | --- |
-| CP1 Cleaning | 24 d?ng, 16 c?t, 24 ID unique | Loader P1 ? cleaning P2 tr?n snapshot th?t |
-| Schema v? text | Ng?y d?ng chu?i, kh?ng null; text ??ng 5 ph?n | Ki?m tra tr?c ti?p DataFrame v? t?ng row |
-| C?c ca bi?n cleaning | X? l? HTML/entities, whitespace, null/list; lo?i ng?y l?i v? field b?t bu?c r?ng | Assertions tr?c ti?p; ki?m tra input r?ng v? duplicate |
-| CP2 Test set | 10 c?u: 3 summary, 3 authors, 2 date, 2 categories | Ki?m tra ph?n b?, DOI, title v? JSON |
-| T?nh t?i l?p | K?t qu? gi?ng nhau khi ch?y l?i ho?c ??o th? t? input test set | So s?nh items v? n?i dung JSON |
-| T??ng th?ch QA | Ground truth kh?p logic tr?ch ??p ?n v? lookup title | G?i QA v?i index gi? l?p ph?n lookup; ch?a ?o vector retrieval |
-| T??ng th?ch P4 | Corruption g?i l?i helper d?ng text ???c, k? c? summary r?ng | Ki?m tra tr?c ti?p v?i ghi log ???c mock |
+| Cleaning | 24 dòng, 16 cột, 24 ID unique | Loader P1 → cleaning P2 trên snapshot thật |
+| Schema/text | Ngày dạng chuỗi, không null, text đủ 5 phần | Kiểm tra DataFrame và từng row |
+| Ca biên | HTML/entities, whitespace, null/list, ngày lỗi, field rỗng, duplicate, input rỗng | Assertions trực tiếp |
+| Test set | 10 câu: 3 summary, 3 authors, 2 date, 2 categories | Đếm loại câu, đối chiếu DOI/title/ground truth |
+| Tính tái lập | Chạy lại hoặc đảo thứ tự input vẫn cùng kết quả | So sánh items và JSON |
+| QA | Đáp án khớp ground truth trong kiểm tra extraction/lookup | Dùng QA thực tế với index giả lập phần lookup |
+| P4 | Corruption gọi helper được, kể cả summary rỗng | Chạy kiểm tra với ghi log được mock |
 
-Artifacts hi?n c? ?? ???c ??c ?? x?c nh?n s? l??ng:
+Artifacts đã đọc để xác nhận số lượng: `data/clean/papers_clean.json` có 24 dòng/16 cột và `data/eval/test_set.json` có 10 câu đúng phân bổ. Các kiểm tra ca biên được chạy trực tiếp, chưa được đóng gói thành bộ pytest lưu trong repo.
 
-- `data/clean/papers_clean.json`: 24 d?ng, 16 c?t, 24 ID unique.
-- `data/eval/test_set.json`: 10 c?u, ph?n b? ??ng 3/3/2/2.
+## 4. Giải thích phần kỹ thuật đã thực hiện
 
-C?c ki?m tra ca bi?n ???c ch?y tr?c ti?p trong phi?n l?m vi?c, ch?a ???c ??ng g?i th?nh b? pytest l?u trong repository.
+### CP1 — Cleaning
 
-## 4. Gi?i th?ch ph?n k? thu?t ?? th?c hi?n
+1. Chuyển dataclass bằng `asdict`, giữ 11 trường raw.
+2. Xử lý null text; strip ID; bỏ tag JATS/HTML, `html.unescape` và normalize whitespace cho title/summary.
+3. Strip từng phần tử authors/categories, bỏ phần tử rỗng và xử lý list null.
+4. Parse published/updated với `errors="coerce"`; loại dòng nếu một trong hai ngày không hợp lệ; xuất ngày thành `YYYY-MM-DD`.
+5. Tính `age_days = (run_date.date() - published.date()).days`.
+6. Tạo `authors_joined`, `categories_joined`, `summary_chars`, `text_for_embedding`.
+7. Deduplicate theo `paper_id`, giữ bản đầu tiên; loại ID/title/summary rỗng.
+8. Sort ổn định theo published giảm dần rồi paper_id tăng dần; reset index.
 
-### CP1 ? Cleaning
-
-`build_clean_dataframe` chuy?n dataclass b?ng `asdict`, gi? ?? 11 tr??ng raw v? b? sung 5 c?t: `age_days`, `authors_joined`, `categories_joined`, `summary_chars`, `text_for_embedding`.
-
-Quy tr?nh x? l?:
-
-1. ?i?n chu?i r?ng cho text null; strip `paper_id`.
-2. B? tag JATS/HTML, gi?i m? b?ng `html.unescape`, chu?n h?a whitespace cho title/summary.
-3. Strip t?ng ph?n t? authors/categories, b? ph?n t? r?ng v? x? l? list null.
-4. Parse published/updated v?i `errors="coerce"`; lo?i d?ng n?u m?t trong hai ng?y kh?ng h?p l?.
-5. T?nh `age_days = (run_date.date() - published.date()).days`; xu?t c? hai ng?y th?nh `YYYY-MM-DD`.
-6. T?o c?c c?t d?n xu?t, g?i l?i public helper ?? d?ng text.
-7. Deduplicate theo `paper_id`, gi? b?n ??u ti?n; lo?i ID/title/summary r?ng.
-8. Sort ?n ??nh theo published gi?m d?n r?i paper_id t?ng d?n; reset index.
-
-Text cho embedding c? c?u tr?c:
+Hàm public dựng text được dùng chung với P4:
 
 ```text
 Title: <title>
@@ -77,97 +63,91 @@ Categories: <categories_joined>
 Summary: <summary>
 ```
 
-H?m d?ng text kh?ng t? lo?i d? li?u corrupted: summary r?ng v?n c? d?ng `Summary: ` ?? P4 d?ng l?i. Cleaning kh?ng t? lo?i b?i c? theo freshness ho?c summary ch? v? ng?n h?n m?t ng??ng t?y ?.
+Helper vẫn dựng dòng `Summary: ` khi summary rỗng để phục vụ corruption. Cleaning không tự loại bài cũ theo freshness hoặc summary chỉ vì ngắn hơn một ngưỡng tùy ý.
 
-### CP2 ? Evaluation set
+### CP2 — Evaluation set
 
-H?m y?u c?u ?t nh?t 10 d?ng v? ?? 10 paper h?p l?. C?c title ch?a nh?y ??n, tr?ng khi so s?nh kh?ng ph?n bi?t hoa th??ng, ho?c ch?a keyword khi?n QA ph?n lo?i nh?m ???c b? qua. C?c field l?m c?u h?i/??p ?n ph?i l? chu?i kh?ng r?ng.
+Hàm yêu cầu ít nhất 10 dòng và đủ 10 ứng viên hợp lệ. Title có nháy đơn, trùng khi so sánh không phân biệt hoa thường, hoặc có keyword gây QA phân loại nhầm được bỏ qua. Các field làm câu hỏi/đáp án phải là chuỗi không rỗng.
 
-Paper ???c sort theo ng?y v? ID, ch?n 10 v? tr? tr?i ??u qua t?p ?ng vi?n, g?m b?i m?i nh?t/c? nh?t v? c? b?i g?c l?n ?Advanced Perspectives?. N?u thi?u m?t nh?m, h?m b? sung paper thu?c nh?m ??; n?u kh?ng th? ??p ?ng contract th? b?o `ValueError`. Kh?ng d?ng random.
+Các paper được sort theo ngày và ID, chọn 10 vị trí trải đều, gồm hai đầu mới nhất/cũ nhất và cả bài gốc lẫn “Advanced Perspectives”. Nếu cần, thay một vị trí giữa để bổ sung nhóm còn thiếu; nếu không thể đáp ứng contract thì báo `ValueError`. Không dùng random.
 
-| Lo?i | S? c?u | Ground truth |
+| Loại | Số câu | Ground truth |
 | --- | ---: | --- |
 | summary | 3 | `first_sentence(row["summary"])` |
 | authors | 3 | `row["authors_joined"]` |
 | date | 2 | `row["published"]` |
 | categories | 2 | `row["categories_joined"]` |
 
-M?i item c? `id`, `question_type`, `question`, `ground_truth`, `ground_truth_doc_ids`. Title ???c ??t trong nh?y ??n ??ng regex c?a QA; document ID l? `paper_id`, kh?ng ph?i ID n?i b? Chroma. K?t qu? ???c ghi b?ng `write_json`.
+Mỗi item có `id`, `question_type`, `question`, `ground_truth`, `ground_truth_doc_ids`. Title nằm trong nháy đơn đúng regex QA; document ID là `paper_id`, không phải ID nội bộ Chroma. Kết quả ghi bằng `write_json`.
 
-### L?nh t?i ki?m tra CP1
+### Lệnh tái kiểm tra CP1
 
-Ch?y t? th? m?c g?c project sau khi c?i m?i tr??ng:
+Chạy từ thư mục gốc project sau khi cài môi trường:
 
 ```bash
 uv run python -c "from datetime import datetime, timezone; from core.config import load_settings; from ingestion.crossref import load_raw_records; from ingestion.cleaning import build_clean_dataframe; s=load_settings(); df=build_clean_dataframe(load_raw_records(s.paths.raw_records_json), datetime.now(timezone.utc)); print('rows=', len(df)); print('columns=', len(df.columns)); print('unique_ids=', df['paper_id'].nunique())"
 ```
 
-K?t qu? mong ??i tr?n snapshot ?? ki?m tra: `rows=24`, `columns=16`, `unique_ids=24`.
+Kết quả mong đợi trên snapshot đã kiểm tra: `rows=24`, `columns=16`, `unique_ids=24`.
 
-## 5. M?t quy?t ??nh k? thu?t quan tr?ng
+## 5. Một quyết định kỹ thuật quan trọng
 
-T?i t?ch `build_text_for_embedding` th?nh public helper ?? cleaning v? corruption d?ng chung m?t format. N?u m?i module t? gh?p text, d? li?u baseline v? corrupted c? th? kh?c c?u tr?c, l?m kh? x?c ??nh t?c ??ng th?c s? c?a corruption.
+Tôi tách `build_text_for_embedding` thành public helper để baseline và corruption dùng cùng format. Điều này giúp tránh thay đổi cấu trúc text ngoài ý muốn khi so sánh tác động của dữ liệu hỏng.
 
-V?i evaluation, t?i ch?n paper t?t ??nh v? l?y c? b?i m?i nh?t ?? k?ch b?n `drop_latest` c? th? t?c ??ng ??n test set. T?i d?ng c?ng helper `first_sentence` v?i QA ?? tr?nh ground truth kh?c c?ch tr?ch ??p ?n.
+Test set chọn paper tất định và có bài mới nhất để `drop_latest` có thể tác động đến evaluation. Ground truth summary dùng cùng `first_sentence` với QA để tránh lệch cách trích đáp án.
 
-Gi?i h?n: QA ?u ti?n lookup theo title ch?nh x?c. V? v?y, ki?m tra c?u tr? l?i ??ng qua lookup ch?a ch?ng minh ch?t l??ng vector search ??c l?p; c?n P4 ch?y baseline ??y ??.
+QA ưu tiên lookup theo title chính xác, nên kiểm tra lookup thành công chưa chứng minh chất lượng vector search độc lập. Baseline đầy đủ cần được đo qua pipeline của P4.
 
-## 6. M?t l?i ho?c blocker ?? x? l?
+## 6. Một lỗi hoặc blocker đã xử lý
 
-- **Tri?u ch?ng:** snapshot ban ??u tr?n branch P1 c? ?? 24 DOI nh?ng c? 24 tr??ng `updated` ??u r?ng.
-- **Nguy?n nh?n:** parser ch?a l?y `created.date-time` v? ch?a fallback updated v? published.
-- **T?c ??ng:** cleaning chuy?n updated r?ng th?nh `NaT`, r?i lo?i c? 24 d?ng theo quy t?c ng?y h?p l?.
-- **Ph?i h?p x? l?:** t?i x?c ??nh l?i contract v? ph?n h?i; P1 s?a parser v? sinh l?i snapshot. T?i kh?ng s?a module P1.
-- **X?c minh:** ??c branch P1 sau s?a, ki?m tra published/updated parse ???c 24/24; ch?y loader P1 v?i cleaning P2 thu ???c 24 d?ng, 16 c?t.
-- **B?i h?c:** PASS tr?n snapshot local ch?a ?? ?? kh?ng ??nh t?ch h?p th?nh c?ng; ph?i ki?m tra ??ng phi?n b?n d? li?u v? loader c?a th?nh vi?n cung c?p ??u v?o.
+- **Triệu chứng:** snapshot ban đầu của P1 đủ 24 DOI nhưng cả 24 `updated` đều rỗng.
+- **Nguyên nhân:** parser chưa lấy `created.date-time` và chưa fallback updated về published.
+- **Tác động:** cleaning chuyển ngày rỗng thành `NaT` và loại cả 24 dòng.
+- **Phối hợp xử lý:** tôi xác định lỗi contract; P1 sửa parser và sinh lại snapshot. Tôi không sửa module P1.
+- **Xác minh:** sau sửa, cả hai ngày parse được 24/24; loader P1 qua cleaning P2 cho 24 dòng, 16 cột.
+- **Bài học:** phải kiểm tra đúng phiên bản dữ liệu và loader của thành viên cung cấp đầu vào; PASS trên snapshot local chưa đủ để khẳng định tích hợp thành công.
 
-## 7. Hi?u bi?t v? lu?ng end-to-end
+## 7. Hiểu biết về luồng end-to-end
 
-1. P1 l?y snapshot/API v? t?o `PaperRecord`; P2 clean th?nh DataFrame; P4 l?u clean artifacts v? g?i embedding/index c? s?n.
-2. P2 t?o test set t? clean DataFrame. Evaluation so DOI retrieved v?i ground-truth IDs ?? t?nh hit rate, so ??p ?n v?i ground truth ?? t?nh token F1.
-3. P3 ki?m tra quality v? freshness. Freshness d?ng tu?i d? li?u v?i ng??ng 180 ng?y v? t? l? stale cho ph?p 25% theo contract nh?m.
-4. P4 t?o corruption, re-index, ??nh gi?; sau ?? repair t? raw v? ??nh gi? l?i. Ba tr?ng th?i ph?i d?ng nguy?n m?t test set ?? so s?nh c?ng b?ng.
-5. P2 h? tr? ??i chi?u `paper_id + text_for_embedding` gi?a baseline v? repaired. N?u run_date kh?c ng?y, `age_days` c? th? thay ??i; kh?ng th? suy ra m?i field gi?ng h?t ch? t? ph?p so s?nh n?y.
+1. P1 lấy snapshot/API và tạo `PaperRecord`; P2 clean; P4 lưu artifacts và gọi embedding/index có sẵn.
+2. P2 tạo test set từ clean DataFrame. Evaluation đối chiếu DOI retrieved với ground-truth IDs để tính hit rate, so đáp án với ground truth để tính token F1.
+3. P3 kiểm tra quality và freshness. Freshness dùng ngưỡng 180 ngày, tỷ lệ stale cho phép 25% theo contract nhóm.
+4. P4 tạo corruption, re-index, evaluate, rồi repair từ raw và evaluate lại. Ba trạng thái dùng nguyên một test set để so sánh công bằng.
+5. P2 hỗ trợ so `paper_id + text_for_embedding` giữa baseline và repaired. Nếu run_date khác ngày, `age_days` có thể thay đổi; phép so này không chứng minh mọi field giống hệt.
 
-## 8. Ph?n t?ch k?t qu?
+## 8. Phân tích kết quả
 
-| Signal | K?t qu? ?? x?c minh |
+| Signal | Kết quả đã xác minh |
 | --- | --- |
 | Clean rows / columns | 24 / 16 |
 | Unique paper IDs | 24 |
 | Evaluation items | 10 |
-| Ph?n b? summary/authors/date/categories | 3 / 3 / 2 / 2 |
-| Ground truth v? QA extraction/lookup | Kh?p trong ki?m tra tr?c ti?p |
-| Baseline/corrupted/repaired metrics ??y ?? | Ch?a x?c minh trong ph?m vi ki?m tra n?y |
-| So s?nh artifacts repaired v?i baseline | C?n c?n ki?m tra sau khi P4 ch?y flow |
+| Phân bổ summary/authors/date/categories | 3 / 3 / 2 / 2 |
+| QA extraction/lookup | Khớp ground truth trong kiểm tra trực tiếp |
+| Metrics baseline/corrupted/repaired đầy đủ | Chưa xác minh trong phạm vi kiểm tra này |
+| So artifacts repaired với baseline | Còn cần kiểm tra sau khi P4 chạy flow |
 
-C?c k?t qu? tr?n x?c nh?n contract ??u v?o/??u ra c?a P2 v? t?nh t??ng th?ch c?a c?u h?i v?i QA. Ch?a c? c? s? t? c?c ki?m tra n?y ?? ghi `retrieval_hit_rate=1.0`, `mean_token_f1=1.0` ho?c k?t lu?n repair ?? ph?c h?i metrics end-to-end.
+Chưa có cơ sở từ các kiểm tra module này để ghi hit rate hoặc token F1 end-to-end bằng 1.0, hay kết luận repair đã phục hồi metrics.
 
-Vi?c review corruption c?n x?t c? paper b? t?c ??ng v? lo?i c?u h?i: blank summary c? th? l?m sai c?u summary nh?ng kh?ng l?m sai c?u authors. Duplicate c? th? l?m quality fail m? kh?ng nh?t thi?t gi?m m?i metric QA.
+Review corruption phải xét cả paper và loại câu hỏi: blank summary có thể làm sai câu summary nhưng không làm sai câu authors; duplicate có thể làm quality fail mà không giảm mọi metric QA.
 
-## 9. ?i?u h?c ???c v? h??ng c?i thi?n
+## 9. Điều học được và hướng cải thiện
 
-### ?i?u h?c ???c
+- Contract cần thống nhất tên field, kiểu dữ liệu và cách xử lý giá trị thiếu.
+- Evaluation cần tái lập được, phủ nhiều paper và tương thích logic QA.
+- Phải phân biệt kiểm tra module, tích hợp và end-to-end; chỉ báo cáo kết quả đã xác minh.
+- Phối hợp P1 đưa các ca biên cleaning/testset vào pytest.
+- Cùng P4 đối chiếu corruption log với test set, kiểm tra repaired và bổ sung metrics ba trạng thái khi có kết quả thực tế.
 
-- Contract ph?i th?ng nh?t c? t?n field, ki?u d? li?u v? c?ch x? l? gi? tr? thi?u.
-- B? evaluation c?n t?i l?p ???c, ph? nhi?u paper v? t??ng th?ch logic QA.
-- C?n ph?n bi?t ki?m tra module, ki?m tra t?ch h?p v? k?t qu? end-to-end; ch? b?o c?o s? li?u ?? x?c minh.
+## 10. Cam kết của thành viên
 
-### H??ng c?i thi?n
+Thành viên tự đánh dấu sau khi đọc và xác nhận:
 
-- Ph?i h?p P1 ??a c?c ca bi?n cleaning/testset ?? ki?m tra v?o pytest.
-- C?ng P4 ??i chi?u corruption log v?i test set v? ph?n t?ch ??p ?n t?ng c?u.
-- Ki?m tra artifacts repaired v? b? sung metrics ba tr?ng th?i sau khi c? k?t qu? pipeline th?c t?.
+- [ ] Nội dung phản ánh đúng phần việc và mức hiểu của tôi.
+- [ ] Tôi có thể giải thích cleaning, evaluation và luồng end-to-end.
+- [ ] Tôi phân biệt rõ phần đã kiểm tra với phần còn chờ tích hợp.
+- [ ] Các kết luận có code, artifact hoặc kết quả kiểm tra để đối chiếu.
+- [ ] Báo cáo không chứa thông tin bí mật và không nhận công việc của người khác là của mình.
 
-## 10. Cam k?t c?a th?nh vi?n
-
-Th?nh vi?n t? ??nh d?u sau khi ??c v? x?c nh?n n?i dung:
-
-- [ ] N?i dung ph?n ?nh ??ng ph?n vi?c v? m?c hi?u c?a t?i.
-- [ ] T?i c? th? gi?i th?ch cleaning, evaluation set v? lu?ng end-to-end.
-- [ ] T?i ph?n bi?t r? k?t qu? ?? ki?m tra v?i ph?n c?n ch? t?ch h?p.
-- [ ] C?c k?t lu?n c? code, artifact ho?c k?t qu? ki?m tra ?? ??i chi?u.
-- [ ] B?o c?o kh?ng ch?a th?ng tin b? m?t v? kh?ng nh?n c?ng vi?c c?a th?nh vi?n kh?c l? c?a m?nh.
-
-**H? v? t?n:** Nguy?n ??nh Anh
-**Ng?y x?c nh?n:** Ch? th?nh vi?n x?c nh?n.
+**Họ và tên:** Nguyễn Đình Anh
+**Ngày xác nhận:** Chờ thành viên xác nhận.
