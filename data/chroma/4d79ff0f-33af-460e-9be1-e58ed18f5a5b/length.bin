@@ -1,5 +1,5 @@
-Title: Evaluating Retrieval Precision with Token F1 and LLM Judges
-Authors: Tuan Phan, Mai Bui
-Published: 2026-03-28
-Categories: Natural Language Processing, Evaluation Methodology
-Summary: Evaluating open-domain QA requires robust metrics. We benchmark semantic similarity, token-level overlap F1, and model-based judge verdicts to quantify RAG answer correctness across noisy corpus conditions.ÿÿÿÿ
+Title: Data Observability and Quality Gates for Production RAG Systems
+Authors: Anh Tran, Quoc Pham
+Published: 2026-06-12
+Categories: Software Engineering, Data Systems
+Summary: Silent data corruption in RAG pipelines degrades LLM answer faithfulness without throwing runtime errors. We introduce automated quality gates using Great Expectations 1.x to catch stale and malformed embeddings before ser

@@ -25,7 +25,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer exactly matches the reference answer, accurately summarizing the main contribution of the paper without any errors or omissions."
+      "reasoning": "The model answer exactly matches the reference answer, accurately summarizing the main contribution of the paper by highlighting the failure of static benchmarks to capture domain drift in enterprise knowledge bases."
     }
   },
   {
@@ -228,7 +228,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer exactly matches the reference answer, correctly identifying the categories as 'Artificial Intelligence' and 'Information Retrieval.' There is no discrepancy or missing information."
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying the categories as 'Artificial Intelligence' and 'Information Retrieval'."
     }
   },
   {
@@ -257,7 +257,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer exactly matches the reference answer, accurately summarizing the main contribution of the paper without any errors or omissions."
+      "reasoning": "The model answer exactly matches the reference answer, accurately summarizing the main contribution of the paper regarding the issue of schema misunderstandings when connecting LLMs directly to raw warehouse tables."
     }
   },
   {

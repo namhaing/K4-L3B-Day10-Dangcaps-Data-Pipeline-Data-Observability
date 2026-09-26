@@ -185,8 +185,9 @@ if run_phase1:
 if run_flow:
     run_script("run_corruption_flow.py")
 
-tabs = st.tabs(
+story_tab, *tabs = st.tabs(
     [
+        "🎬 Demo 5 bước",
         "🧭 Tổng quan",
         "CP0 · Ingestion",
         "CP1 · Cleaning & Quality",
@@ -205,6 +206,187 @@ test_set = load(paths.eval_testset) or []
 corruption_log = load(paths.corruption_log)
 metrics = {state: load(METRICS[state]) for state in STATES}
 quality = {state: load(QUALITY[state]) for state in STATES}
+
+
+# ---------------------------------------------------------------- story (guided demo)
+def card(body: str, color: str, height: int | None = None) -> None:
+    style = f"min-height:{height}px;" if height else ""
+    st.markdown(
+        f"<div style='border:1px solid rgba(128,128,128,.28);border-top:5px solid {color};"
+        f"border-radius:10px;padding:14px 16px;{style}'>{body}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def big(value: str, label: str) -> str:
+    return (
+        f"<div style='font-size:2.1rem;font-weight:700;line-height:1.1'>{value}</div>"
+        f"<div style='opacity:.75;font-size:.92rem'>{label}</div>"
+    )
+
+
+def count_of(state: str, key: str) -> str:
+    m = metrics[state]
+    return f"{round(m[key] * m['samples'])}/{m['samples']}"
+
+
+PLAIN_CHECKS = {
+    ("table_row_count_to_be_between", ""): "Số lượng bài hợp lý (21–24 bài)",
+    ("column_values_to_not_be_null", "paper_id"): "Không bài nào thiếu mã bài",
+    ("column_values_to_not_be_null", "title"): "Không bài nào thiếu tên",
+    ("column_values_to_not_be_null", "summary"): "Không bài nào thiếu tóm tắt",
+    ("column_values_to_not_be_null", "published"): "Không bài nào thiếu ngày xuất bản",
+    ("column_values_to_be_unique", "paper_id"): "Không có bài bị trùng lặp",
+    ("column_value_lengths_to_be_between", "title"): "Tên bài dài ít nhất 8 ký tự",
+    ("column_value_lengths_to_be_between", "summary"): "Tóm tắt dài ít nhất 50 ký tự",
+}
+PLAIN_CORRUPTIONS = {
+    "drop_latest": ("🗑️", "Mất các bài mới nhất", "Job tải dữ liệu chết giữa chừng"),
+    "blank_summary": ("⬜", "Xóa trắng phần tóm tắt", "API trả về trường rỗng"),
+    "inject_noise": ("🌀", "Chèn ký tự rác vào tóm tắt", "Lỗi encoding, dữ liệu bẩn"),
+    "truncate_title": ("✂️", "Tên bài bị cắt còn 6 ký tự", "Cột database bị giới hạn độ dài"),
+    "stale_date": ("📅", "Ngày xuất bản bị lùi 400 ngày", "Lấy nhầm bản dữ liệu cũ"),
+    "duplicate_rows": ("👯", "Nhân bản dòng dữ liệu", "Job chạy lặp 2 lần"),
+}
+
+
+def check_results(report: dict) -> dict[tuple[str, str], bool]:
+    return {
+        (item["expectation"].replace("expect_", ""), item.get("column") or ""): item["success"]
+        for item in report.get("expectations", [])
+    }
+
+
+with story_tab:
+    if not all(metrics.values()) or not corruption_log or not all(quality.values()):
+        st.info("Chưa đủ kết quả 3 trạng thái — chạy Phase 1 và Corruption Flow ở thanh bên trước.")
+    else:
+        bad_checks = check_results(quality["corrupted"])
+        fresh_bad = quality["corrupted"]["freshness"]
+        st.markdown(
+            "### Dữ liệu bẩn làm AI trả lời sai **mà không báo lỗi** → Quality Gate phát hiện → tự sửa → AI đúng lại"
+        )
+
+        # Flow strip: the whole story at a glance.
+        failed_total = sum(not v for v in bad_checks.values()) + (0 if fresh_bad["is_fresh"] else 1)
+        steps = [
+            ("①", "Dữ liệu sạch", big(count_of("baseline", "judge_accuracy"), "câu trả lời đúng"), STATE_COLORS["baseline"]),
+            ("②", "Làm bẩn 6 kiểu", big(str(len(corruption_log["corruptions"])), "loại lỗi tiêm vào"), STATE_COLORS["corrupted"]),
+            ("③", "AI trả lời sai", big(count_of("corrupted", "judge_accuracy"), "câu trả lời đúng"), STATE_COLORS["corrupted"]),
+            ("④", "Gate phát hiện", big(f"{failed_total}/9", "kiểm tra báo lỗi"), "#e34948"),
+            ("⑤", "Tự sửa xong", big(count_of("repaired", "judge_accuracy"), "câu trả lời đúng"), STATE_COLORS["repaired"]),
+        ]
+        cols = st.columns(len(steps))
+        for col, (num, title, body, color) in zip(cols, steps):
+            with col:
+                card(f"<div style='font-weight:600;margin-bottom:6px'>{num} {title}</div>{body}", color, 118)
+        st.write("")
+
+        # Step 1
+        with st.container(border=True):
+            st.markdown("#### ① Dữ liệu sạch: AI trả lời tốt")
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Bài báo trong kho", len(clean_df) if clean_df is not None else "—")
+            c2.metric("Tìm đúng tài liệu", count_of("baseline", "retrieval_hit_rate"))
+            c3.metric("Trả lời đúng", count_of("baseline", "judge_accuracy"))
+            c4.metric("Quality Gate", "✅ PASS")
+            st.caption("🗣️ *\"Hệ thống RAG tìm bài báo liên quan rồi trả lời. Với dữ liệu sạch, cả 10 câu hỏi kiểm tra đều đúng.\"*")
+
+        # Step 2
+        with st.container(border=True):
+            st.markdown("#### ② Làm bẩn dữ liệu theo 6 sự cố hay gặp ngoài đời")
+            caught = {
+                "drop_latest": not bad_checks.get(("table_row_count_to_be_between", ""), True),
+                "blank_summary": not bad_checks.get(("column_value_lengths_to_be_between", "summary"), True),
+                "inject_noise": False,
+                "truncate_title": not bad_checks.get(("column_value_lengths_to_be_between", "title"), True),
+                "stale_date": not fresh_bad["is_fresh"],
+                "duplicate_rows": not bad_checks.get(("column_values_to_be_unique", "paper_id"), True),
+            }
+            entries = {c["type"]: c for c in corruption_log["corruptions"]}
+            for row in (list(PLAIN_CORRUPTIONS)[:3], list(PLAIN_CORRUPTIONS)[3:]):
+                cols = st.columns(3)
+                for col, kind in zip(cols, row):
+                    icon, name, real = PLAIN_CORRUPTIONS[kind]
+                    badge = "🛡️ <b>Gate bắt được</b>" if caught[kind] else "👻 <b>Gate KHÔNG bắt được</b>"
+                    with col:
+                        card(
+                            f"<div style='font-size:1.6rem'>{icon}</div><b>{name}</b> · {entries[kind]['count']} bài"
+                            f"<div style='opacity:.75;font-size:.9rem;margin:4px 0 8px'>Ngoài đời: {real}</div>{badge}",
+                            STATE_COLORS["corrupted"],
+                            150,
+                        )
+                st.write("")
+            st.caption("🗣️ *\"Nhóm cố tình làm hỏng dữ liệu theo 6 kiểu sự cố thật. Có 2 kiểu Quality Gate không bắt được — đó là lý do vẫn phải đo chất lượng câu trả lời.\"*")
+
+        # Step 3
+        with st.container(border=True):
+            st.markdown("#### ③ Hậu quả: AI trả lời sai, nhưng hệ thống **không hề báo lỗi**")
+            c1, c2, c3 = st.columns(3)
+            hit_drop = round((metrics["corrupted"]["retrieval_hit_rate"] - metrics["baseline"]["retrieval_hit_rate"]) * 10)
+            acc_drop = round((metrics["corrupted"]["judge_accuracy"] - metrics["baseline"]["judge_accuracy"]) * 10)
+            c1.metric("Tìm đúng tài liệu", count_of("corrupted", "retrieval_hit_rate"), delta=f"{hit_drop} câu")
+            c2.metric("Trả lời đúng", count_of("corrupted", "judge_accuracy"), delta=f"{acc_drop} câu")
+            c3.metric("Pipeline báo lỗi?", "Không — exit 0")
+            st.error("**Silent failure:** code vẫn chạy bình thường, chỉ có câu trả lời là sai. Không có Quality Gate thì không ai biết.")
+
+            answers = {state: {a["id"]: a for a in load(ANSWERS[state]) or []} for state in STATES}
+            candidates = [
+                qid for qid, a in answers["corrupted"].items()
+                if not a["judge"]["correct"] and answers["baseline"][qid]["judge"]["correct"] and answers["repaired"][qid]["judge"]["correct"]
+            ]
+            candidates.sort(key=lambda qid: (answers["corrupted"][qid]["question_type"] != "date", qid))
+            if candidates:
+                example = answers["baseline"][candidates[0]]
+                st.markdown(f"**Ví dụ thật ({example['id']}):** {example['question']}")
+                st.markdown(f"Đáp án đúng: `{example['ground_truth']}`")
+                cols = st.columns(3)
+                for col, state in zip(cols, STATES):
+                    a = answers[state][example["id"]]
+                    verdict = "✅ Đúng" if a["judge"]["correct"] else "❌ Sai"
+                    with col:
+                        card(
+                            f"<div style='font-weight:600'>{STATE_LABELS[state]}</div>"
+                            f"<div style='margin:8px 0;font-size:1.05rem'>{a['answer'][:160]}</div><b>{verdict}</b>",
+                            STATE_COLORS[state],
+                            130,
+                        )
+            st.caption("🗣️ *\"Cùng một câu hỏi: dữ liệu sạch trả lời đúng, dữ liệu bẩn trả lời sai một cách rất tự tin.\"*")
+
+        # Step 4
+        with st.container(border=True):
+            st.markdown(f"#### ④ Quality Gate phát hiện: {failed_total}/9 kiểm tra báo lỗi → **chặn dữ liệu**")
+            rows = [(PLAIN_CHECKS.get(key, key[0]), passed) for key, passed in bad_checks.items()]
+            rows.append((f"Dữ liệu còn mới (≤ 25% bài quá 180 ngày) — hiện {fresh_bad['stale_ratio']:.0%} bài cũ", fresh_bad["is_fresh"]))
+            rows.sort(key=lambda r: r[1])
+            left, right = st.columns(2)
+            for i, (label, passed) in enumerate(rows):
+                (left if i < (len(rows) + 1) // 2 else right).markdown(f"{'✅' if passed else '❌'} {label}")
+            st.caption("🗣️ *\"Great Expectations kiểm tra 8 luật về dữ liệu, cộng thêm luật độ mới. Dữ liệu bẩn trượt 4 luật nên bị chặn trước khi vào AI.\"*")
+
+        # Step 5
+        with st.container(border=True):
+            st.markdown("#### ⑤ Tự động sửa: dựng lại từ bản gốc → AI đúng trở lại")
+            healing = load(SELF_HEALING_LOG) or []
+            chips = []
+            for step in healing:
+                if step["step"] == "quality_gate":
+                    chips.append(f"{'✅' if step['success'] else '❌'} Gate {STATE_LABELS[step['state']]}: {'PASS' if step['success'] else 'FAIL'}")
+                else:
+                    chips.append("🔧 Tự động dựng lại từ dữ liệu gốc")
+            st.markdown("  ➜  ".join(f"**{chip}**" for chip in chips))
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Tìm đúng tài liệu", count_of("repaired", "retrieval_hit_rate"), delta="về như ban đầu", delta_color="off")
+            c2.metric("Trả lời đúng", count_of("repaired", "judge_accuracy"), delta="về như ban đầu", delta_color="off")
+            c3.metric("Quality Gate", "✅ PASS")
+            st.altair_chart(comparison_chart(metric_frame()), width="content")
+            st.caption("🗣️ *\"Khi Gate báo lỗi, pipeline tự bỏ dữ liệu bẩn và dựng lại từ bản gốc đã lưu. Chạy bao nhiêu lần cũng ra cùng kết quả.\"*")
+
+        st.success(
+            "**3 điều rút ra:** ① Dữ liệu hỏng thì AI sai mà không báo lỗi. "
+            "② Quality Gate + kiểm tra độ mới bắt được phần lớn lỗi — nhưng không phải tất cả, nên phải đo cả chất lượng câu trả lời. "
+            "③ Luôn giữ bản dữ liệu gốc để phục hồi an toàn."
+        )
 
 # ---------------------------------------------------------------- overview
 with tabs[0]:
