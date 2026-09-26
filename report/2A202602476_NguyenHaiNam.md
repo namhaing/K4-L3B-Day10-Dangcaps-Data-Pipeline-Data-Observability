@@ -6,7 +6,7 @@
 | ------------------ | -------------------------- |
 | Họ và tên       | Nguyễn Hải Nam |
 | MSSV               | 2A202602476 |
-| Khóa/Lớp         | K4 |
+| Khóa/Lớp         | K4 / L3B|
 | Tên nhóm         | Dangcaps |
 | Vai trò chính    | Trưởng nhóm — Corruption & Integration Owner (P4) |
 | Repository         | https://github.com/namhaing/K4-L3B-Day10-Dangcaps-Data-Pipeline-Data-Observability |
