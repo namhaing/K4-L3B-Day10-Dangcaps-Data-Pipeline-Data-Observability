@@ -217,3 +217,5 @@ Kết quả nào khác với kỳ vọng ban đầu?
 | 26/09 ~12:25 | Điền `docs/TEAM.md` (4 thành viên, vai trò, phần đóng góp theo lịch sử git); các thành viên tự rà lại phần của mình. |
 | 26/09 ~12:35 | Làm dashboard Streamlit `script/demo_dashboard.py` (bonus B1), thêm `streamlit` vào dependency; smoke test không lỗi, tab Tổng quan báo CP0–CP5 đều ✅. |
 | 26/09 ~12:45 | Thêm tab "🎬 Demo 5 bước" vào dashboard: kể theo câu chuyện, số liệu dạng x/10 câu, ví dụ thật q07 trên 3 trạng thái, danh sách kiểm tra bằng lời thường. Smoke test không lỗi. |
+| 26/09 ~13:00 | Viết `report/group_report.md` (giữ phần ingestion của Hùng, cập nhật theo integration fix); mọi số liệu lấy từ `data/`. |
+| 26/09 ~13:10 | Việt hóa dashboard: tên lỗi, cách tạo, tên kiểm tra GX, loại câu hỏi, tên metric, tên tab; giữ mã gốc để đối chiếu. |
