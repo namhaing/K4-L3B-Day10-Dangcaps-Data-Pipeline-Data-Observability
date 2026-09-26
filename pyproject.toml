@@ -18,6 +18,7 @@ dependencies = [
   "ragas>=0.3.0",
   "requests>=2.32.3",
   "sentence-transformers>=5.0.0",
+  "streamlit>=1.64.0",
 ]
 
 [project.optional-dependencies]

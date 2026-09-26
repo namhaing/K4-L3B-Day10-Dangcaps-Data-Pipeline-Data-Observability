@@ -1,0 +1,456 @@
+"""Dashboard demo theo checkpoint (bonus B1). Chạy: streamlit run script/demo_dashboard.py"""
+from __future__ import annotations
+
+from dataclasses import replace
+import os
+from pathlib import Path
+import subprocess
+import sys
+from tempfile import TemporaryDirectory
+from typing import Any
+
+import altair as alt
+import pandas as pd
+import streamlit as st
+
+from core.config import load_settings
+from core.utils import read_json
+from evaluation.metrics import _token_f1
+from ingestion.crossref import fetch_source_records
+from observability.quality import run_data_quality_checks
+from retrieval.index import LocalEmbeddingIndex
+from retrieval.qa import answer_question
+
+STATES = ["baseline", "corrupted", "repaired"]
+STATE_LABELS = {"baseline": "Baseline", "corrupted": "Corrupted", "repaired": "Repaired"}
+# Categorical slots 1-3 of the reference palette (validated all-pairs for CVD).
+STATE_COLORS = {"baseline": "#2a78d6", "corrupted": "#eb6834", "repaired": "#1baf7a"}
+RATE_METRICS = {
+    "retrieval_hit_rate": "Retrieval hit rate",
+    "mean_token_f1": "Mean token F1",
+    "judge_accuracy": "Judge accuracy",
+}
+INK_SECONDARY = "#52514e"
+
+st.set_page_config(page_title="Day 10 · Data Observability Demo", page_icon="📊", layout="wide")
+settings = load_settings()
+paths = settings.paths
+ROOT = paths.project_dir
+
+METRICS = {"baseline": paths.baseline_metrics, "corrupted": paths.corrupted_metrics, "repaired": paths.repaired_metrics}
+ANSWERS = {"baseline": paths.baseline_answers, "corrupted": paths.corrupted_answers, "repaired": paths.repaired_answers}
+CLEAN = {"baseline": paths.clean_json, "corrupted": paths.corrupted_clean_json, "repaired": paths.repaired_clean_json}
+EMBEDDINGS = {
+    "baseline": paths.embeddings_json,
+    "corrupted": paths.corrupted_embeddings_json,
+    "repaired": paths.repaired_embeddings_json,
+}
+QUALITY = {state: paths.quality_dir / f"{state}_quality_report.json" for state in STATES}
+SELF_HEALING_LOG = paths.corruption_log.parent / "self_healing_log.json"
+
+
+def load(path: Path) -> Any | None:
+    return read_json(path) if Path(path).exists() else None
+
+
+def load_df(path: Path) -> pd.DataFrame | None:
+    if not Path(path).exists():
+        return None
+    return pd.read_json(path, orient="records", dtype=False, convert_dates=False)
+
+
+@st.cache_resource(show_spinner="Đang nạp ChromaDB index...")
+def get_index(state: str) -> LocalEmbeddingIndex:
+    return LocalEmbeddingIndex.load(settings, EMBEDDINGS[state])
+
+
+def ok(flag: bool) -> str:
+    return "✅" if flag else "❌"
+
+
+def run_script(name: str) -> None:
+    """Chạy script pipeline thật và stream log ra màn hình."""
+    env = {**os.environ, "PYTHONUTF8": "1"}
+    placeholder = st.empty()
+    lines: list[str] = []
+    with st.spinner(f"Đang chạy {name}..."):
+        process = subprocess.Popen(
+            [sys.executable, str(ROOT / "script" / name)],
+            cwd=ROOT,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        for line in process.stdout:
+            line = line.rstrip()
+            if not line or "Calculating Metrics" in line or "Loading weights" in line or "Warning" in line:
+                continue
+            lines.append(line)
+            placeholder.code("\n".join(lines[-30:]), language="text")
+        code = process.wait()
+    st.cache_resource.clear()
+    if code == 0:
+        st.success(f"{name}: exit code 0")
+    else:
+        st.error(f"{name}: exit code {code}")
+
+
+def metric_frame() -> pd.DataFrame:
+    rows = []
+    for state in STATES:
+        metrics = load(METRICS[state])
+        if not metrics:
+            continue
+        for key, label in RATE_METRICS.items():
+            rows.append({"state": state, "Trạng thái": STATE_LABELS[state], "metric": label, "value": metrics[key]})
+    return pd.DataFrame(rows)
+
+
+def comparison_chart(df: pd.DataFrame) -> alt.FacetChart:
+    base = alt.Chart().encode(
+        x=alt.X("state:N", sort=STATES, axis=None),
+        y=alt.Y("value:Q", scale=alt.Scale(domain=[0, 1.1]), title=None, axis=alt.Axis(grid=True, gridOpacity=0.3)),
+    )
+    bars = base.mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4, size=34).encode(
+        color=alt.Color(
+            "state:N",
+            scale=alt.Scale(domain=STATES, range=[STATE_COLORS[s] for s in STATES]),
+            legend=alt.Legend(title=None, orient="top", labelExpr="datum.label == 'baseline' ? 'Baseline' : datum.label == 'corrupted' ? 'Corrupted' : 'Repaired'"),
+        ),
+        tooltip=[alt.Tooltip("Trạng thái:N"), alt.Tooltip("metric:N", title="Metric"), alt.Tooltip("value:Q", format=".3f", title="Giá trị")],
+    )
+    labels = base.mark_text(dy=-8, color=INK_SECONDARY, fontSize=12).encode(text=alt.Text("value:Q", format=".2f"))
+    return alt.layer(bars, labels, data=df).properties(width=170, height=240).facet(
+        column=alt.Column("metric:N", sort=list(RATE_METRICS.values()), title=None, header=alt.Header(labelFontSize=13))
+    )
+
+
+def age_histogram(df: pd.DataFrame, state: str) -> alt.LayerChart:
+    threshold = settings.freshness_threshold_days
+    upper = max(int(df["age_days"].max()) + 30, threshold + 60)
+    bars = (
+        alt.Chart(df)
+        .mark_bar(color=STATE_COLORS[state], cornerRadiusTopLeft=4, cornerRadiusTopRight=4, binSpacing=2)
+        .encode(
+            x=alt.X("age_days:Q", bin=alt.Bin(step=30, extent=[0, upper]), title="age_days (ngày kể từ khi xuất bản)"),
+            y=alt.Y("count():Q", title="Số bài"),
+            tooltip=[alt.Tooltip("count():Q", title="Số bài")],
+        )
+    )
+    rule_df = pd.DataFrame({"x": [threshold], "label": [f"Ngưỡng {threshold} ngày"]})
+    rule = alt.Chart(rule_df).mark_rule(color=INK_SECONDARY, strokeDash=[4, 4], strokeWidth=2).encode(x="x:Q")
+    text = alt.Chart(rule_df).mark_text(align="left", dx=6, dy=-6, color=INK_SECONDARY, baseline="top").encode(
+        x="x:Q", y=alt.value(0), text="label:N"
+    )
+    return alt.layer(bars, rule, text).properties(height=260)
+
+
+def expectation_table(states: list[str]) -> pd.DataFrame | None:
+    reports = {state: load(QUALITY[state]) for state in states}
+    if not any(reports.values()):
+        return None
+    rows: dict[tuple[str, str], dict[str, str]] = {}
+    for state, report in reports.items():
+        for item in (report or {}).get("expectations", []):
+            key = (item["expectation"].replace("expect_", ""), item.get("column") or "(table)")
+            rows.setdefault(key, {"Expectation": key[0], "Cột": key[1]})[STATE_LABELS[state]] = ok(item["success"])
+    return pd.DataFrame(rows.values())
+
+
+# ---------------------------------------------------------------- sidebar
+with st.sidebar:
+    st.header("⚙️ Cấu hình")
+    st.markdown(
+        f"""
+- **LLM:** `{settings.llm_provider}` / `{settings.model_name}`
+- **Embedding:** `{settings.embedding_model.split('/')[-1]}`
+- **top_k:** {settings.top_k} · **Freshness:** {settings.freshness_threshold_days} ngày, tối đa 25% stale
+- **REFRESH_SOURCE:** {'bật (gọi API live)' if settings.refresh_source else 'tắt (đọc snapshot)'}
+"""
+    )
+    st.divider()
+    st.header("▶️ Chạy pipeline thật")
+    run_phase1 = st.button("Chạy Phase 1 (CP0 → CP3)", width="stretch")
+    run_flow = st.button("Chạy Corruption Flow (CP4 → CP5)", width="stretch")
+    st.caption("Phase 1 ~1–2 phút, Corruption Flow ~2–3 phút. Kết quả ghi vào `data/`.")
+
+st.title("📊 Day 10 — Data Pipeline & Data Observability cho RAG")
+st.caption("Nhóm Dangcaps · Baseline → Corrupted → Repaired · mọi số liệu đọc trực tiếp từ artifact trong `data/`")
+
+if run_phase1:
+    run_script("run_phase1.py")
+if run_flow:
+    run_script("run_corruption_flow.py")
+
+tabs = st.tabs(
+    [
+        "🧭 Tổng quan",
+        "CP0 · Ingestion",
+        "CP1 · Cleaning & Quality",
+        "CP2 · Test set & Index",
+        "CP3 · Baseline",
+        "CP4 · Corruption",
+        "CP5 · Repair & So sánh",
+        "💬 Hỏi thử RAG",
+        "CP6 · Checklist nộp bài",
+    ]
+)
+
+raw_records = load(paths.raw_records_json) or []
+clean_df = load_df(paths.clean_json)
+test_set = load(paths.eval_testset) or []
+corruption_log = load(paths.corruption_log)
+metrics = {state: load(METRICS[state]) for state in STATES}
+quality = {state: load(QUALITY[state]) for state in STATES}
+
+# ---------------------------------------------------------------- overview
+with tabs[0]:
+    types = {item["question_type"] for item in test_set}
+    log_types = {c["type"] for c in (corruption_log or {}).get("corruptions", [])}
+    b, c, r = metrics["baseline"], metrics["corrupted"], metrics["repaired"]
+    rows = [
+        ("CP0", "Tải đủ 24 bài, lưu 2 file raw", len(raw_records) == 24 and paths.raw_api_response.exists(), f"{len(raw_records)} bài"),
+        ("CP1", "Clean 24 dòng + GX success=True", clean_df is not None and len(clean_df) == 24 and bool(quality["baseline"] and quality["baseline"]["success"]), f"{0 if clean_df is None else len(clean_df)} dòng"),
+        ("CP2", "Test set 10 câu, 4 loại", len(test_set) == 10 and len(types) == 4, f"{len(test_set)} câu, {len(types)} loại"),
+        ("CP3", "baseline_metrics + phase1_report", bool(b) and paths.baseline_report.exists(), f"hit rate {b['retrieval_hit_rate']:.2f}" if b else "chưa chạy"),
+        ("CP4", "Đủ 6 lỗi + metrics sụt giảm", len(log_types) == 6 and bool(b and c) and c["retrieval_hit_rate"] < b["retrieval_hit_rate"], f"{len(log_types)} loại lỗi"),
+        ("CP5", "Repaired = Baseline + report 3 trạng thái", bool(b and r) and all(abs(r[k] - b[k]) < 1e-9 for k in RATE_METRICS) and paths.comparison_report.exists(), "đã phục hồi" if b and r else "chưa chạy"),
+    ]
+    st.dataframe(
+        pd.DataFrame([{"Checkpoint": cp, "Tín hiệu nghiệm thu": sig, "Trạng thái": ok(flag), "Chi tiết": det} for cp, sig, flag, det in rows]),
+        hide_index=True,
+        width="stretch",
+    )
+    frame = metric_frame()
+    if len(frame["state"].unique()) == 3 if not frame.empty else False:
+        st.subheader("Baseline vs Corrupted vs Repaired")
+        st.altair_chart(comparison_chart(frame), width="content")
+    else:
+        st.info("Chưa đủ 3 trạng thái — bấm **Chạy Phase 1** rồi **Chạy Corruption Flow** ở thanh bên.")
+
+# ---------------------------------------------------------------- CP0
+with tabs[1]:
+    st.subheader("CP0 · Raw ingestion & lineage")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Raw records", len(raw_records))
+    col2.metric("crossref_response.json", "có" if paths.raw_api_response.exists() else "thiếu")
+    col3.metric("Nguồn", "Snapshot" if not settings.refresh_source else "API live")
+    if st.button("Chạy tín hiệu CP0 (fetch_source_records)"):
+        records = fetch_source_records(settings)
+        st.success(f"Tín hiệu hoàn thành: Đã tải {len(records)} bài báo")
+    if raw_records:
+        st.dataframe(
+            pd.DataFrame(raw_records)[["paper_id", "title", "published", "primary_category"]],
+            hide_index=True,
+            width="stretch",
+        )
+
+# ---------------------------------------------------------------- CP1
+with tabs[2]:
+    st.subheader("CP1 · Cleaning & Data Quality Gate (GX 1.x + Freshness SLA)")
+    if clean_df is None:
+        st.info("Chưa có `papers_clean.json` — chạy Phase 1.")
+    else:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Dòng sau clean", len(clean_df))
+        col2.metric("paper_id trùng", int(clean_df["paper_id"].duplicated().sum()))
+        col3.metric("Quality Gate baseline", "PASS" if quality["baseline"] and quality["baseline"]["success"] else "FAIL")
+        pick = st.selectbox("Xem `text_for_embedding` của bài", clean_df["title"].tolist())
+        st.code(clean_df.loc[clean_df["title"] == pick, "text_for_embedding"].iloc[0], language="text")
+
+        if st.button("Chạy lại Quality Gate trực tiếp (GX 1.x, ghi ra thư mục tạm)"):
+            with TemporaryDirectory() as temp:
+                temp_paths = replace(paths, quality_dir=Path(temp), gx_dir=Path(temp) / "gx")
+                result = run_data_quality_checks(clean_df, replace(settings, paths=temp_paths), "demo")
+            st.success(f"Tín hiệu hoàn thành: Quality check status = {result['success']}")
+
+        st.markdown("**Kết quả từng expectation**")
+        table = expectation_table(STATES)
+        if table is not None:
+            st.dataframe(table, hide_index=True, width="stretch")
+
+        st.markdown("**Freshness: phân bố `age_days`**")
+        state = st.radio("Tập dữ liệu", STATES, format_func=STATE_LABELS.get, horizontal=True, key="age_state")
+        df_state = load_df(CLEAN[state])
+        if df_state is not None:
+            fresh = (quality[state] or {}).get("freshness", {})
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Tỷ lệ bài cũ (>180 ngày)", f"{fresh.get('stale_ratio', 0):.1%}", help="Ngưỡng tối đa 25%")
+            c2.metric("Bài cũ / tổng", f"{fresh.get('stale_rows', '—')} / {fresh.get('total_rows', '—')}")
+            c3.metric("is_fresh", "✅ fresh" if fresh.get("is_fresh") else "❌ stale")
+            st.altair_chart(age_histogram(df_state, state), width="stretch")
+
+# ---------------------------------------------------------------- CP2
+with tabs[3]:
+    st.subheader("CP2 · Evaluation set & ChromaDB")
+    if test_set:
+        counts = pd.Series([item["question_type"] for item in test_set]).value_counts()
+        cols = st.columns(len(counts) + 1)
+        cols[0].metric("Tổng số câu", len(test_set))
+        for col, (qtype, count) in zip(cols[1:], counts.items()):
+            col.metric(qtype, int(count))
+        st.dataframe(
+            pd.DataFrame(test_set)[["id", "question_type", "question", "ground_truth"]],
+            hide_index=True,
+            width="stretch",
+        )
+    else:
+        st.info("Chưa có `test_set.json` — chạy Phase 1.")
+    st.markdown("**ChromaDB collections**")
+    cols = st.columns(3)
+    for col, state in zip(cols, STATES):
+        if EMBEDDINGS[state].exists():
+            index = get_index(state)
+            col.metric(index.collection_name, f"{index.collection.count()} vectors")
+        else:
+            col.metric(f"papers-{state}", "chưa tạo")
+
+# ---------------------------------------------------------------- CP3
+with tabs[4]:
+    st.subheader("CP3 · Baseline end-to-end")
+    if metrics["baseline"]:
+        cols = st.columns(4)
+        for col, key in zip(cols, [*RATE_METRICS, "mean_judge_score"]):
+            col.metric(RATE_METRICS.get(key, "Mean judge score"), f"{metrics['baseline'][key]:.3f}")
+    if paths.baseline_report.exists():
+        with st.container(border=True):
+            st.markdown(paths.baseline_report.read_text(encoding="utf-8"))
+    else:
+        st.info("Chưa có `phase1_report.md` — chạy Phase 1.")
+
+# ---------------------------------------------------------------- CP4
+with tabs[5]:
+    st.subheader("CP4 · Synthetic corruption & silent failure")
+    if not corruption_log or not metrics["corrupted"]:
+        st.info("Chưa có kết quả corruption — chạy Corruption Flow.")
+    else:
+        cols = st.columns(4)
+        for col, key in zip(cols, [*RATE_METRICS, "mean_judge_score"]):
+            value, base = metrics["corrupted"][key], metrics["baseline"][key]
+            col.metric(RATE_METRICS.get(key, "Mean judge score"), f"{value:.3f}", delta=f"{value - base:+.3f}")
+        st.caption(f"Input {corruption_log['input_rows']} dòng → output {corruption_log['output_rows']} dòng · seed {corruption_log['seed']}")
+        st.dataframe(
+            pd.DataFrame(corruption_log["corruptions"])[["type", "count", "description"]],
+            hide_index=True,
+            width="stretch",
+        )
+
+        st.markdown("**Ảnh hưởng tới từng câu hỏi** (đối chiếu `corruption_log.json` với `corrupted_answers.json`)")
+        affected: dict[str, list[str]] = {}
+        for item in corruption_log["corruptions"]:
+            for paper_id in item["affected_paper_ids"]:
+                affected.setdefault(paper_id, []).append(item["type"])
+        rows = []
+        for answer in load(ANSWERS["corrupted"]) or []:
+            paper_id = answer["ground_truth_doc_ids"][0]
+            silent = answer["token_f1"] >= 0.95 and not answer["retrieval_hit"]
+            rows.append(
+                {
+                    "Câu": answer["id"],
+                    "Loại": answer["question_type"],
+                    "Tìm đúng bài": ok(answer["retrieval_hit"]),
+                    "Token F1": round(answer["token_f1"], 2),
+                    "Judge": ok(answer["judge"]["correct"]),
+                    "Lỗi tác động vào bài": ", ".join(affected.get(paper_id, [])) or "—",
+                    "Ghi chú": "⚠️ đúng chữ nhưng sai tài liệu" if silent else "",
+                }
+            )
+        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+
+# ---------------------------------------------------------------- CP5
+with tabs[6]:
+    st.subheader("CP5 · Idempotent repair & so sánh 3 trạng thái")
+    frame = metric_frame()
+    if frame.empty or len(frame["state"].unique()) < 3:
+        st.info("Chưa đủ 3 trạng thái — chạy Corruption Flow.")
+    else:
+        st.altair_chart(comparison_chart(frame), width="content")
+        table = pd.DataFrame(
+            {
+                STATE_LABELS[s]: {
+                    **{label: f"{metrics[s][key]:.3f}" for key, label in RATE_METRICS.items()},
+                    "Mean judge score (1–5)": f"{metrics[s]['mean_judge_score']:.2f}",
+                    "Quality Gate": "✅ PASS" if quality[s] and quality[s]["success"] else "❌ FAIL",
+                    "Freshness": "✅ fresh" if quality[s] and quality[s]["freshness"]["is_fresh"] else "❌ stale",
+                }
+                for s in STATES
+            }
+        )
+        st.dataframe(table, width="stretch")
+
+        st.markdown("**Self-healing (bonus B2):** Quality Gate fail → tự động repair từ raw snapshot → kiểm tra lại")
+        healing = load(SELF_HEALING_LOG) or []
+        for step in healing:
+            if step["step"] == "quality_gate":
+                st.write(f"{ok(step['success'])} Quality Gate **{step['state']}**: {'PASS' if step['success'] else 'FAIL'}")
+            else:
+                st.write(f"🔧 Repair — trigger: `{step['trigger']}`, nguồn: `{step['source']}`")
+    if paths.comparison_report.exists():
+        with st.expander("Xem `corruption_report.md`"):
+            st.markdown(paths.comparison_report.read_text(encoding="utf-8"))
+
+# ---------------------------------------------------------------- live QA
+with tabs[7]:
+    st.subheader("Hỏi cùng một câu trên 3 collection")
+    st.caption("QA dùng luật trích xuất trong `retrieval/qa.py` (không gọi LLM), nên chạy tức thì và không tốn API.")
+    available = [s for s in STATES if EMBEDDINGS[s].exists()]
+    if not available:
+        st.info("Chưa có index — chạy pipeline trước.")
+    else:
+        options = {f"{item['id']} · {item['question']}": item for item in test_set}
+        choice = st.selectbox("Chọn câu trong test set", ["(tự nhập câu hỏi)", *options])
+        item = options.get(choice)
+        question = item["question"] if item else st.text_input("Câu hỏi", "Who authored the paper 'Freshness SLAs for Real-Time LLM Knowledge Augmentation'?")
+        if item:
+            st.markdown(f"**Đáp án chuẩn:** {item['ground_truth']}")
+        cols = st.columns(len(available))
+        for col, state in zip(cols, available):
+            result = answer_question(question, settings=settings, index=get_index(state))
+            with col, st.container(border=True):
+                st.markdown(f"#### {STATE_LABELS[state]}")
+                st.write(result.answer or "_(trả lời rỗng)_")
+                if item:
+                    hit = any(doc in item["ground_truth_doc_ids"] for doc in result.retrieved_doc_ids)
+                    st.caption(f"Tìm đúng bài: {ok(hit)} · Token F1: {_token_f1(item['ground_truth'], result.answer):.2f}")
+                st.caption("Top-k: " + " · ".join(title[:40] for title in result.retrieved_titles))
+
+# ---------------------------------------------------------------- CP6
+with tabs[8]:
+    st.subheader("CP6 · Checklist trước khi nộp")
+
+    def git(*args: str) -> str:
+        try:
+            return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout
+        except OSError:
+            return ""
+
+    tracked = set(git("ls-files").splitlines())
+    required = [
+        "data/raw/crossref_response.json", "data/raw/crossref_records.json",
+        "data/clean/papers_clean.csv", "data/clean/papers_clean.json", "data/eval/test_set.json",
+        "data/results/baseline_metrics.json", "data/results/corrupted_metrics.json",
+        "data/results/repaired_metrics.json", "data/results/corruption_log.json",
+        "data/reports/phase1_report.md", "data/reports/corruption_report.md",
+        "docs/TEAM.md", "docs/SUBMISSION.md", "docs/CHECKPOINTS.md", "docs/RUBRIC.md", ".env.example",
+    ]
+    st.dataframe(
+        pd.DataFrame(
+            [{"File": f, "Có trên máy": ok((ROOT / f).exists()), "Đã commit": ok(f in tracked)} for f in required]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    team_text = (ROOT / "docs" / "TEAM.md").read_text(encoding="utf-8")
+    reports = sorted(p.name for p in (ROOT / "report").glob("2A*.md"))
+    contributors = sorted(set(git("log", "origin/main", "--format=%an").splitlines()))
+    st.markdown(
+        f"""
+- {ok('.env' not in tracked)} `.env` **không** bị commit
+- {ok('[Điền' not in team_text and 'HoVaTen' not in team_text)} `docs/TEAM.md` đã điền
+- {ok(len(reports) >= 4)} Báo cáo cá nhân `report/<MSSV>_HoTen.md`: {len(reports)}/4 — {', '.join(reports) or 'chưa có'}
+- Contributors trên `origin/main`: {', '.join(contributors) or 'không đọc được'}
+"""
+    )
