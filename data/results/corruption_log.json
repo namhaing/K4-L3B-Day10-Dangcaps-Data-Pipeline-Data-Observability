@@ -1,0 +1,79 @@
+{
+  "seed": 42,
+  "input_rows": 24,
+  "output_rows": 22,
+  "corruptions": [
+    {
+      "type": "drop_latest",
+      "description": "Dropped the 5 most recently published records (20%).",
+      "count": 5,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671812",
+        "10.1145/3637528.3671808",
+        "10.1145/3637528.3671804",
+        "10.1145/3637528.3671807",
+        "10.1145/3637528.3671802"
+      ]
+    },
+    {
+      "type": "blank_summary",
+      "description": "Replaced summary with an empty string.",
+      "count": 5,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671811",
+        "10.1145/3637528.3671801",
+        "10.1145/3637528.3671810",
+        "10.1145/3637528.3671816",
+        "10.1145/3637528.3671820"
+      ]
+    },
+    {
+      "type": "inject_noise",
+      "description": "Inserted garbage tokens at the start of the summary and after every 4th word.",
+      "count": 5,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671806",
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671819",
+        "10.1145/3637528.3671813",
+        "10.1145/3637528.3671809"
+      ]
+    },
+    {
+      "type": "truncate_title",
+      "description": "Truncated title to 6 characters (below the 8-character minimum).",
+      "count": 5,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671815",
+        "10.1145/3637528.3671823",
+        "10.1145/3637528.3671814",
+        "10.1145/3637528.3671822",
+        "10.1145/3637528.3671805"
+      ]
+    },
+    {
+      "type": "stale_date",
+      "description": "Shifted published date 400 days into the past and recomputed age_days.",
+      "count": 7,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671822",
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671816",
+        "10.1145/3637528.3671814",
+        "10.1145/3637528.3671809",
+        "10.1145/3637528.3671821",
+        "10.1145/3637528.3671806"
+      ]
+    },
+    {
+      "type": "duplicate_rows",
+      "description": "Appended 3 exact duplicate rows.",
+      "count": 3,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671822",
+        "10.1145/3637528.3671823",
+        "10.1145/3637528.3671818"
+      ]
+    }
+  ]
+}

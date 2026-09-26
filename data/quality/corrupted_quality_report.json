@@ -1,0 +1,197 @@
+{
+  "report_name": "corrupted",
+  "success": false,
+  "row_count": 22,
+  "expectations": [
+    {
+      "expectation": "expect_table_row_count_to_be_between",
+      "column": null,
+      "success": true,
+      "details": {
+        "observed_value": 22
+      }
+    },
+    {
+      "expectation": "expect_column_values_to_not_be_null",
+      "column": "paper_id",
+      "success": true,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_counts": [],
+        "partial_unexpected_index_list": []
+      }
+    },
+    {
+      "expectation": "expect_column_values_to_be_unique",
+      "column": "paper_id",
+      "success": false,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 6,
+        "unexpected_percent": 27.27272727272727,
+        "partial_unexpected_list": [
+          "10.1145/3637528.3671823",
+          "10.1145/3637528.3671822",
+          "10.1145/3637528.3671818",
+          "10.1145/3637528.3671822",
+          "10.1145/3637528.3671823",
+          "10.1145/3637528.3671818"
+        ],
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_percent_total": 27.27272727272727,
+        "unexpected_percent_nonmissing": 27.27272727272727,
+        "partial_unexpected_counts": [
+          {
+            "value": "10.1145/3637528.3671818",
+            "count": 2
+          },
+          {
+            "value": "10.1145/3637528.3671822",
+            "count": 2
+          },
+          {
+            "value": "10.1145/3637528.3671823",
+            "count": 2
+          }
+        ],
+        "partial_unexpected_index_list": [
+          1,
+          2,
+          7,
+          19,
+          20,
+          21
+        ]
+      }
+    },
+    {
+      "expectation": "expect_column_values_to_not_be_null",
+      "column": "title",
+      "success": true,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_counts": [],
+        "partial_unexpected_index_list": []
+      }
+    },
+    {
+      "expectation": "expect_column_value_lengths_to_be_between",
+      "column": "title",
+      "success": false,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 7,
+        "unexpected_percent": 31.818181818181817,
+        "partial_unexpected_list": [
+          "Advanc",
+          "Advanc",
+          "Advanc",
+          "Advanc",
+          "Evalua",
+          "Advanc",
+          "Advanc"
+        ],
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_percent_total": 31.818181818181817,
+        "unexpected_percent_nonmissing": 31.818181818181817,
+        "partial_unexpected_counts": [
+          {
+            "value": "Advanc",
+            "count": 6
+          },
+          {
+            "value": "Evalua",
+            "count": 1
+          }
+        ],
+        "partial_unexpected_index_list": [
+          1,
+          2,
+          10,
+          11,
+          18,
+          19,
+          20
+        ]
+      }
+    },
+    {
+      "expectation": "expect_column_values_to_not_be_null",
+      "column": "summary",
+      "success": true,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_counts": [],
+        "partial_unexpected_index_list": []
+      }
+    },
+    {
+      "expectation": "expect_column_value_lengths_to_be_between",
+      "column": "summary",
+      "success": false,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 5,
+        "unexpected_percent": 22.727272727272727,
+        "partial_unexpected_list": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_percent_total": 22.727272727272727,
+        "unexpected_percent_nonmissing": 22.727272727272727,
+        "partial_unexpected_counts": [
+          {
+            "value": "",
+            "count": 5
+          }
+        ],
+        "partial_unexpected_index_list": [
+          4,
+          5,
+          9,
+          13,
+          14
+        ]
+      }
+    },
+    {
+      "expectation": "expect_column_values_to_not_be_null",
+      "column": "published",
+      "success": true,
+      "details": {
+        "element_count": 22,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_counts": [],
+        "partial_unexpected_index_list": []
+      }
+    }
+  ],
+  "freshness": {
+    "latest_published": "2026-06-12",
+    "oldest_published": "2025-03-14",
+    "stale_rows": 9,
+    "total_rows": 22,
+    "stale_ratio": 0.4090909090909091,
+    "threshold_days": 180,
+    "max_stale_ratio": 0.25,
+    "is_fresh": false
+  }
+}

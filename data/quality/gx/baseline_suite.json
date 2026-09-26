@@ -1,0 +1,85 @@
+{
+  "name": "baseline_suite",
+  "id": "f21841ea-2975-40d1-8137-c969229fb2f7",
+  "expectations": [
+    {
+      "type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 21,
+        "max_value": 24
+      },
+      "meta": {},
+      "id": "5b320f28-6bb9-46ea-8902-b2af84b84a5d",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "paper_id"
+      },
+      "meta": {},
+      "id": "0b39bd7d-d991-44f5-8996-64d54e9dda71",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {},
+      "id": "da7585b9-97cf-4974-ab6c-f858e4076855",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "summary"
+      },
+      "meta": {},
+      "id": "a3cfe04a-e5ac-44cf-b84e-efed706acbcd",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "published"
+      },
+      "meta": {},
+      "id": "019f11fc-1071-485c-9b9a-8fe83c49b7d6",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_be_unique",
+      "kwargs": {
+        "column": "paper_id"
+      },
+      "meta": {},
+      "id": "4ac5dd0d-eca1-4ace-a0fa-ec88be8df9e1",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_value_lengths_to_be_between",
+      "kwargs": {
+        "column": "title",
+        "min_value": 8
+      },
+      "meta": {},
+      "id": "241a2c0d-a6e4-4669-acbf-c1a875860115",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_value_lengths_to_be_between",
+      "kwargs": {
+        "column": "summary",
+        "min_value": 50
+      },
+      "meta": {},
+      "id": "8bcc5f55-d909-4685-9b02-3123857ddd4a",
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "1.18.0"
+  },
+  "notes": null
+}

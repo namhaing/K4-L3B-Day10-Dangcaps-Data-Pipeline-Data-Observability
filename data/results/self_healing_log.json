@@ -1,0 +1,17 @@
+[
+  {
+    "step": "quality_gate",
+    "state": "corrupted",
+    "success": false
+  },
+  {
+    "step": "repair",
+    "trigger": "auto: quality gate failed",
+    "source": "crossref_records.json"
+  },
+  {
+    "step": "quality_gate",
+    "state": "repaired",
+    "success": true
+  }
+]

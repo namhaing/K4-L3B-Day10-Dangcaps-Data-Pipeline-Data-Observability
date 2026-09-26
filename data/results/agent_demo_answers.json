@@ -1,0 +1,10 @@
+[
+  {
+    "question": "Summarize the main contribution of the paper 'Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines'.",
+    "answer": "The main contribution of the paper \"Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines\" is the establishment of a synthetic test generator that automatically creates paired evaluation sets whenever new corpora are ingested. This approach addresses the limitation of static benchmarks, which fail to capture domain drift in enterprise knowledge bases, enabling continuous and adaptive evaluation of enterprise retrieval pipelines."
+  },
+  {
+    "question": "Who authored the paper 'Freshness SLAs for Real-Time LLM Knowledge Augmentation'?",
+    "answer": "The paper \"Freshness SLAs for Real-Time LLM Knowledge Augmentation\" was authored by Bao Do and Linh Ngo."
+  }
+]

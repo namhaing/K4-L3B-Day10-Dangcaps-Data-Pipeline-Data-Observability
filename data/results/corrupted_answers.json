@@ -1,0 +1,290 @@
+[
+  {
+    "id": "q01",
+    "question_type": "summary",
+    "question": "Summarize the main contribution of the paper 'Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines'.",
+    "ground_truth": "Static benchmarks fail to capture domain drift in enterprise knowledge bases.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671812"
+    ],
+    "answer": "An extended empirical study on tatic benchmarks fail to capture domain drift in enterprise knowledge bases.",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671824",
+      "10.1145/3637528.3671817",
+      "10.1145/3637528.3671813",
+      "10.1145/3637528.3671809"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines\nAuthors: Quang Le, Yen Vu\nPublished: 2026-06-12\nCategories: Evaluation Methodology, Enterprise Systems\nSummary: An extended empirical study on tatic benchmarks fail to capture domain drift in enterprise knowledge bases. We establish a synthetic test generator that auto-creates paired evaluation sets whenever new corpora are ingested Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Evaluating Retrieval Precision with Token F1 and LLM Judges\nAuthors: Tuan Phan, Mai Bui\nPublished: 2026-06-05\nCategories: Natural Language Processing, Evaluation Methodology\nSummary: An extended empirical study on valuating open-domain QA requires robust metrics. We benchmark semantic similarity, token-level overlap F1, and model-based judge verdicts to quantify RAG answer correctness across noisy corpus conditions Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^",
+      "Title: Chunking Strategies for Technical Documentation Retrieval\nAuthors: Long Trinh, Ha Chu\nPublished: 2025-03-26\nCategories: Information Retrieval, Natural Language Processing\nSummary: ||| Hierarchical and semantic boundary #@$% chunking preserves code block @@@ contexts and markdown headings. <<null>> Our benchmark demonstrates superior 0xDEADBEEF top-1 recall compared to #@$% fixed character length sliding <<null>> windows."
+    ],
+    "retrieval_hit": false,
+    "token_f1": 0.7407407407407406,
+    "judge": {
+      "score": 3,
+      "correct": false,
+      "reasoning": "The model answer attempts to restate the reference answer but introduces a typographical error ('tatic' instead of 'static') and adds 'An extended empirical study on' which is not present in the reference. This addition changes the meaning and is not supported by the reference answer. Therefore, while the core idea about static benchmarks failing to capture domain drift is present, the model answer is not fully correct or precise."
+    }
+  },
+  {
+    "id": "q02",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Freshness SLAs for Real-Time LLM Knowledge Augmentation'?",
+    "ground_truth": "Bao Do, Linh Ngo",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671804"
+    ],
+    "answer": "Bao Do, Linh Ngo",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671816",
+      "10.1145/3637528.3671801",
+      "10.1145/3637528.3671813",
+      "10.1145/3637528.3671814"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Freshness SLAs for Real-Time LLM Knowledge Augmentation\nAuthors: Bao Do, Linh Ngo\nPublished: 2025-04-30\nCategories: Data Management, Artificial Intelligence\nSummary: ",
+      "Title: Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-05-20\nCategories: Artificial Intelligence, Information Retrieval\nSummary: ",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^",
+      "Title: Advanc\nAuthors: Anh Tran, Quoc Pham\nPublished: 2025-04-28\nCategories: Software Engineering, Data Systems\nSummary: An extended empirical study on ilent data corruption in RAG pipelines degrades LLM answer faithfulness without throwing runtime errors. We introduce automated quality gates using Great Expectations 1.x to catch stale and malformed embeddings before serving Further analysis on scaling parameters."
+    ],
+    "retrieval_hit": false,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying both authors of the paper."
+    }
+  },
+  {
+    "id": "q03",
+    "question_type": "date",
+    "question": "When was the paper 'Advanced Perspectives on Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines' published?",
+    "ground_truth": "2026-06-12",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671824"
+    ],
+    "answer": "2026-06-12",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671824",
+      "10.1145/3637528.3671817",
+      "10.1145/3637528.3671810",
+      "10.1145/3637528.3671813"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines\nAuthors: Quang Le, Yen Vu\nPublished: 2026-06-12\nCategories: Evaluation Methodology, Enterprise Systems\nSummary: An extended empirical study on tatic benchmarks fail to capture domain drift in enterprise knowledge bases. We establish a synthetic test generator that auto-creates paired evaluation sets whenever new corpora are ingested Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Evaluating Retrieval Precision with Token F1 and LLM Judges\nAuthors: Tuan Phan, Mai Bui\nPublished: 2026-06-05\nCategories: Natural Language Processing, Evaluation Methodology\nSummary: An extended empirical study on valuating open-domain QA requires robust metrics. We benchmark semantic similarity, token-level overlap F1, and model-based judge verdicts to quantify RAG answer correctness across noisy corpus conditions Further analysis on scaling parameters.",
+      "Title: Automated Data Quality Profiling with Great Expectations in CI/CD\nAuthors: Son Nguyen, Thuy Doan\nPublished: 2026-06-08\nCategories: Data Quality, DevOps\nSummary: ",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^"
+    ],
+    "retrieval_hit": true,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, providing the correct publication date '2026-06-12' as requested by the question."
+    }
+  },
+  {
+    "id": "q04",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Advanced Perspectives on Automated Data Quality Profiling with Great Expectations in CI/CD' belong to?",
+    "ground_truth": "Data Quality, DevOps",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671822"
+    ],
+    "answer": "Data Quality, DevOps",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671810",
+      "10.1145/3637528.3671822",
+      "10.1145/3637528.3671822",
+      "10.1145/3637528.3671814"
+    ],
+    "retrieved_contexts": [
+      "Title: Automated Data Quality Profiling with Great Expectations in CI/CD\nAuthors: Son Nguyen, Thuy Doan\nPublished: 2026-06-08\nCategories: Data Quality, DevOps\nSummary: ",
+      "Title: Advanc\nAuthors: Son Nguyen, Thuy Doan\nPublished: 2025-05-06\nCategories: Data Quality, DevOps\nSummary: An extended empirical study on mbedding quality checks directly into data pipelines enables fail-closed governance. We show how Great Expectations suites catch schema drifts and null fields before documents reach the embedding model Further analysis on scaling parameters.",
+      "Title: Advanc\nAuthors: Son Nguyen, Thuy Doan\nPublished: 2025-05-06\nCategories: Data Quality, DevOps\nSummary: An extended empirical study on mbedding quality checks directly into data pipelines enables fail-closed governance. We show how Great Expectations suites catch schema drifts and null fields before documents reach the embedding model Further analysis on scaling parameters.",
+      "Title: Advanc\nAuthors: Anh Tran, Quoc Pham\nPublished: 2025-04-28\nCategories: Software Engineering, Data Systems\nSummary: An extended empirical study on ilent data corruption in RAG pipelines degrades LLM answer faithfulness without throwing runtime errors. We introduce automated quality gates using Great Expectations 1.x to catch stale and malformed embeddings before serving Further analysis on scaling parameters."
+    ],
+    "retrieval_hit": true,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying the categories as 'Data Quality' and 'DevOps'."
+    }
+  },
+  {
+    "id": "q05",
+    "question_type": "summary",
+    "question": "Summarize the main contribution of the paper 'Advanced Perspectives on Multi-Agent Consensus for High-Stakes Fact Verification'.",
+    "ground_truth": "An extended empirical study on single LLM is susceptible to confirmation bias when evaluating retrieved evidence.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671820"
+    ],
+    "answer": "",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671820",
+      "10.1145/3637528.3671813",
+      "10.1145/3637528.3671801",
+      "10.1145/3637528.3671816"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Multi-Agent Consensus for High-Stakes Fact Verification\nAuthors: Phong Vu, Ngan Hoang\nPublished: 2026-06-08\nCategories: Multi-Agent Systems, Artificial Intelligence\nSummary: ",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^",
+      "Title: Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-05-20\nCategories: Artificial Intelligence, Information Retrieval\nSummary: ",
+      "Title: Advanced Perspectives on Freshness SLAs for Real-Time LLM Knowledge Augmentation\nAuthors: Bao Do, Linh Ngo\nPublished: 2025-04-30\nCategories: Data Management, Artificial Intelligence\nSummary: "
+    ],
+    "retrieval_hit": true,
+    "token_f1": 0.0,
+    "judge": {
+      "score": 2,
+      "correct": false,
+      "reasoning": "The model answer is empty and does not provide any information or summary related to the paper's main contribution. Therefore, it is not materially correct and does not address the question."
+    }
+  },
+  {
+    "id": "q06",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Advanced Perspectives on Semantic Layer Integration for Agentic Text-to-SQL Pipelines'?",
+    "ground_truth": "Huy Dinh, Trang Vo",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671818"
+    ],
+    "answer": "Huy Dinh, Trang Vo",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671818",
+      "10.1145/3637528.3671806",
+      "10.1145/3637528.3671813"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Semantic Layer Integration for Agentic Text-to-SQL Pipelines\nAuthors: Huy Dinh, Trang Vo\nPublished: 2026-06-06\nCategories: Databases, Information Systems\nSummary: An extended empirical study on onnecting LLMs directly to raw warehouse tables often results in schema misunderstandings. A governed semantic layer standardizes business metric definitions, dramatically boosting SQL generation accuracy Further analysis on scaling parameters.",
+      "Title: Semantic Layer Integration for Agentic Text-to-SQL Pipelines\nAuthors: Huy Dinh, Trang Vo\nPublished: 2025-03-28\nCategories: Databases, Information Systems\nSummary: 0xDEADBEEF Connecting LLMs directly to ~~??~~ raw warehouse tables often @@@ results in schema misunderstandings. @@@ A governed semantic layer @@@ standardizes business metric definitions, 0xDEADBEEF dramatically boosting SQL generation <<null>> accuracy.",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^"
+    ],
+    "retrieval_hit": true,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying both authors of the paper."
+    }
+  },
+  {
+    "id": "q07",
+    "question_type": "date",
+    "question": "When was the paper 'Advanced Perspectives on Mitigating Ghost Vectors in Dense Retrieval via Idempotent Indexing' published?",
+    "ground_truth": "2026-06-03",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671815"
+    ],
+    "answer": "2025-03-14",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671803",
+      "10.1145/3637528.3671815",
+      "10.1145/3637528.3671813",
+      "10.1145/3637528.3671811"
+    ],
+    "retrieved_contexts": [
+      "Title: Mitigating Ghost Vectors in Dense Retrieval via Idempotent Indexing\nAuthors: Duc Vu, Thao Dang\nPublished: 2025-03-14\nCategories: Databases, Information Systems\nSummary: ~~??~~ Soft-deletions in vector databases <<null>> leave orphaned embeddings that 0xDEADBEEF lead to hallucinations. This &*!^ paper designs an idempotent ||| index synchronization protocol that ||| guarantees complete purges of #@$% outdated vector artifacts.",
+      "Title: Advanc\nAuthors: Duc Vu, Thao Dang\nPublished: 2026-06-03\nCategories: Databases, Information Systems\nSummary: An extended empirical study on oft-deletions in vector databases leave orphaned embeddings that lead to hallucinations. This paper designs an idempotent index synchronization protocol that guarantees complete purges of outdated vector artifacts Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^",
+      "Title: Hybrid Search Architectures: Combining BM25 with Dense Representations\nAuthors: Dat Tran, Lan Pham\nPublished: 2026-05-14\nCategories: Information Retrieval, Algorithms\nSummary: "
+    ],
+    "retrieval_hit": true,
+    "token_f1": 0.0,
+    "judge": {
+      "score": 1,
+      "correct": false,
+      "reasoning": "The model answer '2025-03-14' is incorrect as the reference answer states the paper was published on '2026-06-03'. The model's date is earlier and does not match the correct publication date."
+    }
+  },
+  {
+    "id": "q08",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks' belong to?",
+    "ground_truth": "Artificial Intelligence, Information Retrieval",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671813"
+    ],
+    "answer": "Artificial Intelligence, Information Retrieval",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671813",
+      "10.1145/3637528.3671801",
+      "10.1145/3637528.3671811",
+      "10.1145/3637528.3671820"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^",
+      "Title: Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-05-20\nCategories: Artificial Intelligence, Information Retrieval\nSummary: ",
+      "Title: Hybrid Search Architectures: Combining BM25 with Dense Representations\nAuthors: Dat Tran, Lan Pham\nPublished: 2026-05-14\nCategories: Information Retrieval, Algorithms\nSummary: ",
+      "Title: Advanced Perspectives on Multi-Agent Consensus for High-Stakes Fact Verification\nAuthors: Phong Vu, Ngan Hoang\nPublished: 2026-06-08\nCategories: Multi-Agent Systems, Artificial Intelligence\nSummary: "
+    ],
+    "retrieval_hit": true,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying the categories as 'Artificial Intelligence' and 'Information Retrieval'."
+    }
+  },
+  {
+    "id": "q09",
+    "question_type": "summary",
+    "question": "Summarize the main contribution of the paper 'Semantic Layer Integration for Agentic Text-to-SQL Pipelines'.",
+    "ground_truth": "Connecting LLMs directly to raw warehouse tables often results in schema misunderstandings.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671806"
+    ],
+    "answer": "0xDEADBEEF Connecting LLMs directly to ~~??~~ raw warehouse tables often @@@ results in schema misunderstandings.",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671806",
+      "10.1145/3637528.3671818",
+      "10.1145/3637528.3671818",
+      "10.1145/3637528.3671813"
+    ],
+    "retrieved_contexts": [
+      "Title: Semantic Layer Integration for Agentic Text-to-SQL Pipelines\nAuthors: Huy Dinh, Trang Vo\nPublished: 2025-03-28\nCategories: Databases, Information Systems\nSummary: 0xDEADBEEF Connecting LLMs directly to ~~??~~ raw warehouse tables often @@@ results in schema misunderstandings. @@@ A governed semantic layer @@@ standardizes business metric definitions, 0xDEADBEEF dramatically boosting SQL generation <<null>> accuracy.",
+      "Title: Advanced Perspectives on Semantic Layer Integration for Agentic Text-to-SQL Pipelines\nAuthors: Huy Dinh, Trang Vo\nPublished: 2026-06-06\nCategories: Databases, Information Systems\nSummary: An extended empirical study on onnecting LLMs directly to raw warehouse tables often results in schema misunderstandings. A governed semantic layer standardizes business metric definitions, dramatically boosting SQL generation accuracy Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Semantic Layer Integration for Agentic Text-to-SQL Pipelines\nAuthors: Huy Dinh, Trang Vo\nPublished: 2026-06-06\nCategories: Databases, Information Systems\nSummary: An extended empirical study on onnecting LLMs directly to raw warehouse tables often results in schema misunderstandings. A governed semantic layer standardizes business metric definitions, dramatically boosting SQL generation accuracy Further analysis on scaling parameters.",
+      "Title: Advanced Perspectives on Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks\nAuthors: Minh Nguyen, Hoang Le\nPublished: 2026-06-01\nCategories: Artificial Intelligence, Information Retrieval\nSummary: &*!^ An extended empirical study #@$% on etrieval-Augmented Generation (RAG) #@$% significantly improves large language <<null>> model accuracy by grounding #@$% responses in retrieved passages. &*!^ We explore agentic multi-hop ||| reasoning and routing across &*!^ heterogeneous vector indices Further 0xDEADBEEF analysis on scaling parameters. &*!^"
+    ],
+    "retrieval_hit": true,
+    "token_f1": 0.888888888888889,
+    "judge": {
+      "score": 2,
+      "correct": false,
+      "reasoning": "The model answer contains extraneous and nonsensical tokens ('0xDEADBEEF', '~~??~~', '@@@') that detract from clarity and correctness. While it captures the core idea about connecting LLMs to raw warehouse tables leading to schema misunderstandings, the noise makes it materially incorrect."
+    }
+  },
+  {
+    "id": "q10",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Evaluating Retrieval Precision with Token F1 and LLM Judges'?",
+    "ground_truth": "Tuan Phan, Mai Bui",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671805"
+    ],
+    "answer": "Tuan Phan, Mai Bui",
+    "retrieved_doc_ids": [
+      "10.1145/3637528.3671817",
+      "10.1145/3637528.3671811",
+      "10.1145/3637528.3671824",
+      "10.1145/3637528.3671823"
+    ],
+    "retrieved_contexts": [
+      "Title: Advanced Perspectives on Evaluating Retrieval Precision with Token F1 and LLM Judges\nAuthors: Tuan Phan, Mai Bui\nPublished: 2026-06-05\nCategories: Natural Language Processing, Evaluation Methodology\nSummary: An extended empirical study on valuating open-domain QA requires robust metrics. We benchmark semantic similarity, token-level overlap F1, and model-based judge verdicts to quantify RAG answer correctness across noisy corpus conditions Further analysis on scaling parameters.",
+      "Title: Hybrid Search Architectures: Combining BM25 with Dense Representations\nAuthors: Dat Tran, Lan Pham\nPublished: 2026-05-14\nCategories: Information Retrieval, Algorithms\nSummary: ",
+      "Title: Advanced Perspectives on Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines\nAuthors: Quang Le, Yen Vu\nPublished: 2026-06-12\nCategories: Evaluation Methodology, Enterprise Systems\nSummary: An extended empirical study on tatic benchmarks fail to capture domain drift in enterprise knowledge bases. We establish a synthetic test generator that auto-creates paired evaluation sets whenever new corpora are ingested Further analysis on scaling parameters.",
+      "Title: Advanc\nAuthors: Dat Tran, Lan Pham\nPublished: 2026-06-11\nCategories: Information Retrieval, Algorithms\nSummary: An extended empirical study on ense vector search excels at conceptual similarity but struggles with exact acronyms and serial numbers. Reciprocal Rank Fusion of sparse lexical scores and dense embeddings achieves optimal recall Further analysis on scaling parameters."
+    ],
+    "retrieval_hit": false,
+    "token_f1": 1.0,
+    "judge": {
+      "score": 5,
+      "correct": true,
+      "reasoning": "The model answer exactly matches the reference answer, correctly identifying both authors of the paper."
+    }
+  }
+]
