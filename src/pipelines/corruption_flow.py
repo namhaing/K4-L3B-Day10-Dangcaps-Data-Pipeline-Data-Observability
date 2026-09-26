@@ -11,15 +11,16 @@ from evaluation.metrics import evaluate_pipeline
 from ingestion.cleaning import build_clean_dataframe
 from ingestion.corruption import corrupt_clean_dataframe
 from ingestion.crossref import load_raw_records
-from observability.quality import build_freshness_report, run_data_quality_checks
+from observability.quality import run_data_quality_checks
 from observability.reporting import generate_corruption_report
 from pipelines.phase1 import METRIC_KEYS, save_clean_artifacts
 from retrieval.index import LocalEmbeddingIndex
 
 
 def _gate(df: pd.DataFrame, settings: Settings, name: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    # run_data_quality_checks already builds and writes {name}_freshness_report.json.
     quality = run_data_quality_checks(df, settings, name)
-    freshness = build_freshness_report(df, settings, settings.paths.quality_dir / f"{name}_freshness_report.json")
+    freshness = quality["freshness"]
     status = "PASS" if quality["success"] else "FAIL"
     print(f"  Quality gate [{name}]: {status} (is_fresh={freshness['is_fresh']})")
     return quality, freshness
