@@ -133,20 +133,36 @@ python script/run_corruption_flow.py
 
 ### Nguồn dữ liệu
 
-| Thuộc tính                | Giá trị                             |
-| --------------------------- | ------------------------------------- |
-| Source                      | [Crossref endpoint/dataset thực tế] |
-| Query/filter                | [Query hoặc filter]                  |
-| Thời điểm lấy dữ liệu | [Timestamp]                           |
-| Số record nhận được    | [Số lượng]                         |
-| Cơ chế retry/backoff      | [Mô tả ngắn]                       |
+| Thuộc tính | Giá trị thực tế |
+| --- | --- |
+| Source | Crossref REST API: `https://api.crossref.org/works` |
+| Query | `query.title=agentic retrieval augmented generation large language model` |
+| Filter | `from-pub-date:2026-03-30,has-abstract:true` (được cấu hình động với freshness threshold 180 ngày) |
+| Giới hạn kết quả | 24 records (`rows=24`) |
+| Số record nhận được | 24 trong `data/raw/crossref_records.json` |
+| Thời điểm lấy dữ liệu | Không được ghi trong raw artifact; response không có ingestion timestamp riêng |
+| Timeout và retry | Timeout 30 giây; tối đa 5 lần thử. Retry các lỗi request/HTTP/JSON; status 429, 500, 502, 503, 504 được xử lý là retryable. |
+| Backoff | Delay tuyến tính `1.5 × số lần thử`: 1.5, 3, 4.5 và 6 giây giữa các lần thử; không phải exponential backoff. |
+| Offline fallback | Thử parse response snapshot nếu có, sau đó đọc `data/raw/crossref_records.json` theo working directory hiện tại. |
+| Raw artifacts | `data/raw/crossref_response.json` (response API) và `data/raw/crossref_records.json` (parsed records) |
 
-### Raw và clean schema
+### Raw record schema từ ingestion
 
-| Trường        | Kiểu dữ liệu | Bắt buộc?  | Ý nghĩa   | Xử lý khi thiếu/sai |
-| --------------- | --------------- | ------------ | ----------- | ---------------------- |
-| [Tên trường] | [Kiểu]         | [Có/Không] | [Ý nghĩa] | [Cách xử lý]        |
-| [Tên trường] | [Kiểu]         | [Có/Không] | [Ý nghĩa] | [Cách xử lý]        |
+| Trường | Kiểu | Bắt buộc trong record đầu ra? | Ý nghĩa / xử lý khi thiếu |
+| --- | --- | --- | --- |
+| `paper_id` | `str` | Có | DOI; item thiếu DOI bị bỏ qua. |
+| `title` | `str` | Có | Nối title parts và chuẩn hóa khoảng trắng; title rỗng bị bỏ qua. |
+| `summary` | `str` | Không | Abstract; bỏ JATS/XML tags và chuẩn hóa whitespace; nếu thiếu thì chuỗi rỗng. |
+| `authors` | `list[str]` | Không | Ghép `given` + `family`; author không hợp lệ bị bỏ qua. |
+| `categories` | `list[str]` | Không | Danh sách Crossref `subject`; mặc định danh sách rỗng. |
+| `primary_category` | `str` | Không | Subject đầu tiên; mặc định `General` nếu không có subject. |
+| `published` | `str` | Không | Ngày ISO `YYYY-MM-DD` từ `date-time` hoặc `date-parts`; fallback sang `updated` nếu thiếu. |
+| `updated` | `str` | Không | Đọc từ `updated`, fallback sang `created`, rồi `published`. |
+| `abs_url` | `str` | Không | Crossref `URL`; fallback `https://doi.org/<DOI>`. |
+| `pdf_url` | `str` | Không | URL link có content type PDF; nếu không có thì fallback sang item URL. |
+| `comment` | `str` | Không | Sinh theo mẫu `Crossref record <DOI>`. |
+
+Parser bỏ item không phải object, thiếu DOI hoặc thiếu title. Raw response được lưu nguyên payload trước khi parse; `crossref_records.json` chứa schema đã parse để downstream sử dụng.
 
 ### Quy tắc cleaning
 
