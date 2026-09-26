@@ -44,7 +44,7 @@ Crossref snapshot/API ─(P1)→ data/raw/*.json
 
 ---
 
-## 1. Việc chung — CẢ NHÓM làm trong 15 phút đầu
+## 1. Việc chung
 
 ### 1.1 Cài môi trường (mỗi người trên máy mình)
 
@@ -55,7 +55,10 @@ Crossref snapshot/API ─(P1)→ data/raw/*.json
 - [ ] `git config user.name` / `user.email` đúng email tài khoản GitHub, để commit được tính vào **Insights → Contributors**.
 - [ ] **Không bao giờ** `git add .env`. Trước mỗi commit, chạy `git status` để kiểm tra.
 
-### 1.2 Chốt DATA CONTRACT (bắt buộc trước khi code)
+### 1.2 DATA CONTRACT — ✅ ĐÃ CHỐT
+
+> Trưởng nhóm đã chốt, **mọi người code theo đúng mục này**, không cần họp lại.
+> Muốn đổi bất kỳ tên cột, key hoặc định dạng nào thì **báo cả nhóm trước**, vì module khác đang phụ thuộc vào nó.
 
 **a) `PaperRecord`** (raw record, đã định nghĩa trong `crossref.py`):
 
@@ -131,7 +134,7 @@ Summary: {summary}
 
 | Giờ | CP | P1 | P2 | P3 | P4 |
 |---|---|---|---|---|---|
-| 09:00–09:30 | CP0 | **crossref.py** | Setup, viết khung cleaning | Setup, đọc API GX 1.x | Setup, chốt contract, `.env` |
+| 09:00–09:30 | CP0 | **crossref.py** | Setup, viết khung cleaning | Setup, đọc API GX 1.x | Setup, `.env`, khung `phase1.py` |
 | 09:30–10:05 | CP1 | Review, hỗ trợ P2 | **cleaning.py** | **quality.py** (test tạm bằng raw records) | **corruption.py** |
 | 10:05–10:35 | CP2 | Bắt đầu B3 (tests) | **testset.py** | Hoàn thiện quality/freshness | **phase1.py** |
 | 10:35–11:00 | CP3 | Test ingestion/cleaning | Kiểm tra QA trả đúng ground truth | **generate_phase1_report** | Chạy `run_phase1.py` end-to-end |
@@ -230,7 +233,7 @@ uv run python -c "from datetime import datetime, timezone; from core.config impo
 
 - [ ] **`build_test_set(df, output_path) -> list[dict]`**
   - [ ] Kiểm tra `len(df) >= 10`, không đủ thì `raise ValueError`
-  - [ ] Sinh **đúng 10 câu**, phủ đủ 4 loại, ví dụ 3 summary + 3 authors + 2 date + 2 categories
+  - [ ] Sinh **đúng 10 câu**: 3 `summary` + 3 `authors` + 2 `date` + 2 `categories`, id từ `q01` đến `q10`
   - [ ] Chọn paper **tất định** (không random, hoặc cố định seed) và **rải đều**: có cả bài mới nhất (để lỗi "drop latest" gây ảnh hưởng) lẫn bài gốc và bài "Advanced Perspectives"
   - [ ] Ghi JSON bằng `write_json(output_path, items)`
 
